@@ -4,7 +4,7 @@ function Set-UPNtoHSPDPID {
 		Updates users UPN to 1200+HSPDPID
 	
 	.DESCRIPTION
-        Using a CSV with sAMAccountName and the 10 digit HSPDPID
+        Using a CSV that contains sAMAccountName and the 10 digit HSPDPID to update the UPN in ADUC
         	
 	.PARAMETER PRODUCTION
 		This will enable a switch that will either give you a preview of
@@ -20,6 +20,9 @@ function Set-UPNtoHSPDPID {
             CREATED: 6/28/2015 7:57 PM
 			LASTEDIT: 6/28/2015 9:15 PM
             KEYWORDS: ADUC
+
+            NOTES: Change column headers in .csv file to
+                   'sAMAccountName','HSPDPID' before import 
 	.LINK
 		EAD Scripts
 #>
@@ -34,6 +37,7 @@ function Set-UPNtoHSPDPID {
 	)
 	
 	BEGIN {
+
 		$ImportFilePath = "C:\Temp"
 		$ImportFileName = "HSPDPID.csv"
 		$SamUPN = Import-Csv "$ImportFilePath\$ImportFileName"
