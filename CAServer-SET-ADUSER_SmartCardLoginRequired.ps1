@@ -4,15 +4,16 @@ function Set-SmartCardLoginRequired {
 		Sets the SmartcardLogonRequired flag to True (checked)
 	
 	.DESCRIPTION
-        Sets the SmartcardLogonRequired flag to True (checked) programatically
-        In the GUI, this setting can be found here:
-        First.Last-adm > Properties > Account > Account options: > Smart card is required for interactive login [checked]
+        	Sets the SmartcardLogonRequired flag to True (checked) programatically
+        	In the GUI, this setting can be found here:
+        	First.Last-adm > Properties > Account > Account options: > Smart card is required for interactive login [checked]
         	
-	.PARAMETER param1
-		param1 Description
+	.PARAMETER PRODUCTION
+		This will enable a switch that will either give you a preview of
+        	the results (REVIEW), or run the script in production (LIVE)
 	
 	.EXAMPLE
-				PS C:\> Get-Function -param1 'Value1'
+		PS C:\> Set-SmartCardLoginRequired -PRODUCTION REVIEW
 	
 	.NOTES
 		    NAME:  Set-SmartCardLoginRequired
@@ -23,6 +24,7 @@ function Set-SmartCardLoginRequired {
             KEYWORDS: ADUC, Lincpass
 	.LINK
 		EAD Scripts
+		https://github.com/harringg/Powershell/edit/master/CAServer-SET-ADUSER_SmartCardLoginRequired.ps1
 #>
 	[CmdletBinding(SupportsPaging = $true,
 				   SupportsShouldProcess = $true)]
@@ -35,26 +37,28 @@ function Set-SmartCardLoginRequired {
 	)
 	
 	BEGIN {
-
+		# This will place all first.last-adm accounts into an array
+		# All users will have the SmartcardLogonRequired attribute set to True (when run Live)
 		$SetLoginRequiredADM = Get-ADUser -Filter { samaccountname -like "*-adm" }
-		$DomainAdmin = "Fargo\Administrator" 
-        $Password = Read-Host "Enter Admin Password" -AsSecureString
-        $DomainCredential = new-object -typename System.Management.Automation.PSCredential -argumentlist $DomainAdmin, $Password 
+		#This will store the credentials as Secure Text on the client PC running the script
+		$DomainAdmin = "Fargo\Administrator"
+		$Password = Read-Host "Enter Admin Password" -AsSecureString
+		$DomainCredential = new-object -typename System.Management.Automation.PSCredential -argumentlist $DomainAdmin, $Password
 		
 	} #end BEGIN
 	
 	PROCESS {
-
+		
 		foreach ($LoginRequired in $SetLoginRequiredADM) {
 			
 			Switch ($PRODUCTION) {
 				LIVE { Set-ADUser -Identity $($LoginRequired.sAMAccountName) -SmartcardLogonRequired:$true -Credential $DomainCredential }
 				REVIEW {
-                    $($LoginRequired.sAMAccountName)
+					$($LoginRequired.sAMAccountName)
 				}
 			} #end Switch PRODUCTION
 		} #end foreach
-
+		
 	} #end PROCESS
 	
 	END {
