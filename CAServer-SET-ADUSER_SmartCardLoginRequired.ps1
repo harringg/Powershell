@@ -39,7 +39,8 @@ function Set-SmartCardLoginRequired {
 	BEGIN {
 		# This will place all first.last-adm accounts into an array
 		# All users will have the SmartcardLogonRequired attribute set to True (when run Live)
-		$SetLoginRequiredADM = Get-ADUser -Filter { samaccountname -like "*-adm" }
+		#$SetLoginRequiredADM = Get-ADUser -Filter { sAMAccountName -like "*-adm" }
+		$SetLoginRequiredADM = Get-ADUser -Filter { UserPrincipalName -like "1200*" }
 		#This will store the credentials as Secure Text on the client PC running the script
 		$DomainAdmin = "Fargo\Administrator"
 		$Password = Read-Host "Enter Admin Password" -AsSecureString
