@@ -20,7 +20,7 @@ function Set-SmartCardLoginRequired {
             AUTHOR: Grant Harrington
             EMAIL: grant.harrington@ars.usda.gov
             CREATED: 7/7/2015 6:39 AM
-			LASTEDIT: 7/29/2015 11:45 AM
+			LASTEDIT: 8/3/2015 3:22 PM
             KEYWORDS: ADUC, Lincpass
 	.LINK
 		EAD Scripts
