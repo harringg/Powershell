@@ -20,7 +20,7 @@ function Set-SmartCardLoginRequired {
             AUTHOR: Grant Harrington
             EMAIL: grant.harrington@ars.usda.gov
             CREATED: 7/7/2015 6:39 AM
-			LASTEDIT: 8/4/2015 6:50 PM
+			LASTEDIT: 8/5/2015 3:10 PM
             KEYWORDS: ADUC, Lincpass
 	.LINK
 		EAD Scripts
@@ -31,7 +31,7 @@ function Set-SmartCardLoginRequired {
 	[OutputType([array])]
 	param
 	(
-                [Parameter(Mandatory=$TRUE,ParameterSetName='RU')]
+                [Parameter(Mandatory=$FALSE,ParameterSetName='RU')]
                 [ValidateSet("ANS","CER","IGB","SUG","SPB","SIMP")]
                 [string]$RU,
 		[Parameter(Mandatory = $TRUE)]
@@ -53,7 +53,7 @@ function Set-SmartCardLoginRequired {
 		# This will place all first.last-adm accounts into an array
 		# All users will have the SmartcardLogonRequired attribute set to True (when run Live)
 		#$SetLoginRequiredADM = Get-ADUser -Filter { sAMAccountName -like "*-adm" }
-		$SetLoginRequiredADM = Get-ADUser -Filter { UserPrincipalName -like "1200*" -and Department -like "$RUDEPT" } -Properties * | select *
+		$SetLoginRequiredADM = Get-ADUser -Filter { UserPrincipalName -like "1200*" -and Department -like "* *" -and SmartcardLogonRequired -eq $false } -Properties * | select *
 		#This will store the credentials as Secure Text on the client PC running the script
 		$DomainAdmin = "Fargo\Administrator"
 		$Password = Read-Host "Enter Admin Password" -AsSecureString
@@ -77,6 +77,7 @@ function Set-SmartCardLoginRequired {
 				Department = $LoginRequired.Department
 				LastLogonDate = $LoginRequired.LastLogonDate
 				SmartcardLogonRequired = $LoginRequired.SmartcardLogonRequired
+                EmailAddress = $LoginRequired.EmailAddress
 				ReportRun = $date
 				
 			} #end LoginRequiredProps
@@ -91,6 +92,6 @@ function Set-SmartCardLoginRequired {
 	
 	END {
 		$ListUsers | sort sAMAccountName | ft
-		$ListUsers | Export-csv "C:\temp\CER-PostMFAEnforce-$date.csv" -NoTypeInformation
+		$ListUsers | Export-csv "C:\temp\ALL-PreMFAEnforce-$date.csv" -NoTypeInformation
 	} #end END
 } #end Set-SmartCardLoginRequired
