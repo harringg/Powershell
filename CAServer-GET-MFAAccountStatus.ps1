@@ -16,7 +16,6 @@ function Get-MFAAccountStatus {
 	
 	.PARAMETER Output
 		Output Screen-FullList Displays all accounts and their status (MFA Enforced)
-
 	.PARAMETER Output
 		Output Screen-Counts Categorizes the total accounts types and their totals
 	
@@ -28,9 +27,8 @@ function Get-MFAAccountStatus {
             AUTHOR: Grant Harrington
             EMAIL: grant.harrington@ars.usda.gov
             CREATED: 7/29/2015 3:45 PM
-			LASTEDIT: 7/29/2015 4:20 PM
+			LASTEDIT: 8/5/2015 12:45 PM
             KEYWORDS: ADUC, MFA
-
 	.LINK
 		EAD Scripts
 #>
@@ -45,7 +43,7 @@ function Get-MFAAccountStatus {
 	)
 	
 	BEGIN {
-		
+		$date = get-date -f yyMMddHHmm
 		$ExportPath = "C:\Temp"
 		
 		$MFA = get-aduser -Filter * -Properties * -credential 'fargo\administrator'
@@ -71,21 +69,22 @@ function Get-MFAAccountStatus {
 			}
 			Screen-Counts {
                 $Total = $($MFAStdUserNotEnforced.Count) + $($MFAEPUserNotEnforced.Count) + $($MFAStdUserEnforced.Count) + $($MFAEPUserEnforced.Count) + $($StdUserNonMFA.Count)
-				Write-host "Standard Users, MFA Not Enforced = $($MFAStdUserNotEnforced.Count), ($($MFAStdUserNotEnforced.Count)/$($total)) "
+				Write-host "Standard Users, Not MFA Enforced = $($MFAStdUserNotEnforced.Count), ($($MFAStdUserNotEnforced.Count)/$($total)) "
 				Write-host "EP Users, Not MFA Enforced = $($MFAEPUserNotEnforced.Count), ($($MFAEPUserNotEnforced.Count)/$($total))"
 				Write-host "Standard Users, MFA Enforced = $($MFAStdUserEnforced.Count), ($($MFAStdUserEnforced.Count)/$($total))"
 				Write-host "EP Users, MFA Enforced = $($MFAEPUserEnforced.Count), ($($MFAEPUserEnforced.Count)/$($total))"
 				Write-host "Standard Users, No Lincpass = $($StdUserNonMFA.Count), ($($StdUserNonMFA.Count)/$($total))"
 				
 				Write-Host "Total AD Users = $Total"
+                Write-Host "Query Date/Time = $date"
 			}
 			
 			Export-CSV {
-				$MFAStdUserNotEnforced | Export-Csv "$ExportPath\MFAStdUserNotEnforced.csv" -NoTypeInformation
-				$MFAEPUserNotEnforced | Export-Csv "$ExportPath\MFAEPUserNotEnforced.csv" -NoTypeInformation
-				$MFAStdUserEnforced | Export-Csv "$ExportPath\MFAStdUserEnforced.csv" -NoTypeInformation
-				$MFAEPUserEnforced | Export-Csv "$ExportPath\MFAEPUserEnforced.csv" -NoTypeInformation
-				$StdUserNonMFA | Export-Csv "$ExportPath\StdUserNonMFA.csv" -NoTypeInformation
+				$MFAStdUserNotEnforced | Export-Csv "$ExportPath\$date-MFAStdUserNotEnforced.csv" -NoTypeInformation
+				$MFAEPUserNotEnforced | Export-Csv "$ExportPath\$date-MFAEPUserNotEnforced.csv" -NoTypeInformation
+				$MFAStdUserEnforced | Export-Csv "$ExportPath\$date-MFAStdUserEnforced.csv" -NoTypeInformation
+				$MFAEPUserEnforced | Export-Csv "$ExportPath\$date-MFAEPUserEnforced.csv" -NoTypeInformation
+				$StdUserNonMFA | Export-Csv "$ExportPath\$date-StdUserNonMFA.csv" -NoTypeInformation
 			}
 		} #end Switch-Production
 		
