@@ -39,7 +39,7 @@ function Get-ADUCGroupOverview {
 		$GET_ADGroupAll = Get-ADGroup -LdapFilter "((!member=*))" -properties * | where{ $_.groupCategory -match 'security' } | select *
 	    $date = get-date -f yyMMdd_HHmm
 		
-		$ServerPath = '\\10.170.180.2\Public\IT\Shared Knowledge\IT-Networking Projects'
+		$ServerPath = '\\fargo\dfs\Public\IT\Shared Knowledge\IT-Networking Projects'
 		$ServerFolder = '2015-EAD MIGRATION'
 		$ServerFile = 'ADSecurityGroupOverview'
 		
