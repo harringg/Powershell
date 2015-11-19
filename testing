@@ -9,32 +9,15 @@ set-acl -aclobject $acl $directory
 
 
 
-
-This folder and subfolders	InheritanceFlags.ContainerInherit, PropagationFlags.None
-
-Subfolders only	InheritanceFlags.ContainerInherit, PropagationFlags.InheritOnly
-
-This folder and files	InheritanceFlags.ObjectInherit, PropagationFlags.None
-
-This folder and files	InheritanceFlags.ObjectInherit, PropagationFlags.NoPropagateInherit
-
-
-
-This folder and files	InheritanceFlags.ObjectInherit, PropagationFlags.NoPropagateInherit. 
-
         [ValidateSet('
     Switch ($Item){
 'SubFoldersFilesOnlyConObjInherit' {$inheritvar = "ContainerInherit, ObjectInherit";$propvar = "InheritOnly"}
 'FolderSubFoldersFilesConObjNone' {$inheritvar = "ContainerInherit, ObjectInherit";$propvar = "None"}
 'FolderSubFoldersFilesConObjNoProp' {$inheritvar = "ContainerInherit, ObjectInherit";$propvar = "NoPropagateInherit"}
-
-
-
-'ThisFolderAndFilesCon' {$inheritvar = "ContainerInherit";$propvar = "None"}
-'ThisFolderAndFilesObj' {$inheritvar = "ObjectInherit";$propvar = "NoPropagateInherit"}
-        'profile' {'Do profile stuff'}
-        'server' {'Do server stuff'}
-        'devicebay' {'Do devicebay stuff'}
+'FolderSubFoldersConNone' {$inheritvar = "ContainerInherit";$propvar = "None"}
+'SubfoldersOnlyConInherit' {$inheritvar = "ContainerInherit";$propvar = "InheritOnly"}
+'ThisFolderAndFilesObjNone' {$inheritvar = "ObjectInherit";$propvar = "None"}
+'ThisFolderAndFilesObjNoProp' {$inheritvar = "ObjectInherit";$propvar = "NoPropagateInherit"}
     }
 
 $inherit = [system.security.accesscontrol.InheritanceFlags]$inheritvar
