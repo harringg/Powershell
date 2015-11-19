@@ -1,1 +1,16 @@
-testing
+$directory = "Test"
+$inherit = [system.security.accesscontrol.InheritanceFlags]"ContainerInherit, ObjectInherit"
+$propagation = [system.security.accesscontrol.PropagationFlags]"None"
+$acl = Get-Acl $directory
+$accessrule = New-Object system.security.AccessControl.FileSystemAccessRule("IUSR_CRACKLIN", "Modify", $inherit, $propagation, "Allow")
+$acl.AddAccessRule($accessrule)
+set-acl -aclobject $acl $directory
+
+
+InheritanceFlags.ContainerInherit, InheritanceFlags.ObjectInherit, PropagationFlags.InheritOnly
+This Folder, Subfolders and Files   	InheritanceFlags.ContainerInherit, InheritanceFlags.ObjectInherit, PropagationFlags.None
+This Folder, Subfolders and Files	InheritanceFlags.ContainerInherit, InheritanceFlags.ObjectInherit, PropagationFlags.NoPropagateInherit
+This folder and subfolders	InheritanceFlags.ContainerInherit, PropagationFlags.None
+Subfolders only	InheritanceFlags.ContainerInherit, PropagationFlags.InheritOnly
+This folder and files	InheritanceFlags.ObjectInherit, PropagationFlags.None
+This folder and files	InheritanceFlags.ObjectInherit, PropagationFlags.NoPropagateInherit
