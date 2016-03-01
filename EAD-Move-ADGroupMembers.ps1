@@ -29,7 +29,7 @@ function Move-ADGroupMembers {
             AUTHOR: Grant Harrington
             EMAIL: grant.harrington@ars.usda.gov
             CREATED: 2/11/2016 7:48 PM
-			LASTEDIT: 2/22/2016 6:00 PM
+			LASTEDIT: 3/01/2016 10:36 AM
             KEYWORDS:
 	.LINK
 		EAD Scripts
@@ -50,6 +50,9 @@ function Move-ADGroupMembers {
 	
 	BEGIN {
 		$Date = Get-Date -format yyMMdd
+		# This gets the group members sAMAccountNames as an array
+		$SourceGroupMembers = Get-ADGroupMember $SourceGroup | select sAMAccountName
+		$DestGroupMembers = Get-ADGroupMember $DestGroup | select -ExpandProperty sAMAccountName
 		
 	} #end BEGIN
 	
@@ -57,50 +60,50 @@ function Move-ADGroupMembers {
 		
 		Switch ($PRODUCTION) {
 			LIVE {
-				# This gets the group members sAMAccountNames as an array
-				$SourceGroupMembers = Get-ADGroupMember $SourceGroup | select sAMAccountName
 				
 				# Loops through the sAMAccountName array of the SourceGroupMembers
 				foreach ($SourceMember in $SourceGroupMembers) {
+					$SAMID = $SourceMember.sAMAccountName
 					
-					# Loops through the sAMAccountName array of the DestGroup
-					foreach ($DestMember in $DestGroup) {
+					IF ($SAMID -in $DestGroupMembers) {
 						
-						$DestGroupMembers = Get-ADGroupMember $DestMember | select sAMAccountName
+						Write-Output "Skipping $SamID"
+						continue
+					} #end IF $SAMID -in LIVE
+					
+					IF ($SAMID -notin $DestGroupMembers) {
 						
-						IF ($DestGroupMembers.sAMAccountName -match $SourceMember.sAMAccountName) {
-							Write-Output "$($SourceMember.sAMAccountName) exists in $DestGroup and will be skipped"
-						} #end IF
-						ELSE {
-							Write-Output "$($SourceMember.sAMAccountName) does not exist does not exist in $DestGroup and will be added now...."
-							Add-ADGroupMember $DestGroup -Members $SourceMember
-						} #end ELSE
-					} #end foreach $DestGroup
+						Write-Output "Adding $SamID to $DestGroup"
+						Add-ADGroupMember $DestGroup -Members $SourceMember
+					} #end IF $SAMID -notin LIVE
+					
 				} #end foreach $SourceGroupMembers
-			} # end LIVE
+				
+			} #end LIVE
 			
 			REVIEW {
-				# This gets the group members sAMAccountNames as an array
-				$SourceGroupMembers = Get-ADGroupMember $SourceGroup | select sAMAccountName
 				
 				# Loops through the sAMAccountName array of the SourceGroupMembers
 				foreach ($SourceMember in $SourceGroupMembers) {
+					$SAMID = $SourceMember.sAMAccountName
 					
-					# Loops through the sAMAccountName array of the DestGroup
-					foreach ($DestMember in $DestGroup) {
+					IF ($SAMID -in $DestGroupMembers) {
 						
-						$DestGroupMembers = Get-ADGroupMember $DestMember | select sAMAccountName
+						Write-Output "Skipping $SamID"
+						continue
+					} #end IF $SAMID -in REVIEW
+					
+					IF ($SAMID -notin $DestGroupMembers) {
 						
-						IF ($DestGroupMembers.sAMAccountName -match $SourceMember.sAMAccountName) {
-							Write-Output "$($SourceMember.sAMAccountName) exists in $DestGroup and will be skipped"
-						} #end IF
-						ELSE {
-							Write-Output "$($SourceMember.sAMAccountName) does not exist does not exist in $DestGroup and will be added now...."
-							Add-ADGroupMember $DestGroup -Members $SourceMember -WhatIf
-						} #end ELSE
-					} #end foreach $DestGroup
+						Write-Output "Adding $SamID to $DestGroup"
+						Add-ADGroupMember $DestGroup -Members $SourceMember -WhatIf
+
+					} #end IF $SAMID -notin REVIEW
+					
 				} #end foreach $SourceGroupMembers
+				
 			} #end REVIEW
+
 		} #end Switch-Production
 		
 	} #end PROCESS
