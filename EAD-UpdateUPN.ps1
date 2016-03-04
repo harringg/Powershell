@@ -43,11 +43,10 @@ function EAD-UpdateUPN {
         <# Change for your environment:
             $ExportPath
             $UPNDomain
-
          #>
 		$Date = get-date -f yyMMdd
-		$ExportPath = "L:\IT-Networking Projects\2015-EAD MIGRATION\SamAccountName"
-		$ImportPath = "C:\Temp\TEMP FILES"
+		$ExportPath = "D:\POSH"
+		$ImportPath = "D:\POSH"
 		$ImportFile = "Sam_UPN-Import"
 		
         <# Creates AD Object to modify.  Criteria, existing sAMAccountName is not first.last, Department matches RU, Email address if filled in and is ARS.USDA address #>
@@ -60,9 +59,11 @@ function EAD-UpdateUPN {
         <# Loops through the individuals contained in the $UpdateUPN variable #>
 		foreach ($UPN in $UpdateUPN) {
             <# Creates a variable that is the first.last part of the email address to pass onto the $NewSam and $NewUPN variables #>
-			$SAM = $UPN.sAMAccountName
+			$DateModify = get-date -f yyMMdd_HHmm
+            $SAM = $UPN.sAMAccountName
 			$NewUPN = $UPN.HSPDPID
-			
+			$EADAccount = Get-ADUser -Identity $SAM | select Name, UserPrincipalName
+            
             <# Sets the values for the Set-ADUser parameters #>
 			$SetADUserIdentity = "$($SAM)"
 			$SetADUserUserPrincipalName = $NewUPN
@@ -75,8 +76,11 @@ function EAD-UpdateUPN {
 			
             <# Creates a new custom Object to provide an onscreen list and archival log of the Old,New,Email Address and Department #>
 			$props = [ordered]@{
+                'Name' = $EADAccount.Name
 				'sAMAccountName' = "$SetADUserIdentity"
+                'Old UPN' = $EADAccount.UserPrincipalName
 				'New UPN' = "$SetADUserUserPrincipalName"
+                'DateStamp' = $DateModify
 			}
 			
 			$obj = New-Object -TypeName PSObject -Property $props
