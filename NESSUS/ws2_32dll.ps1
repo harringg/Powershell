@@ -10,3 +10,9 @@ $DLLVersionInfomation = (get-item $env:windir\System32\ws2_32.dll).VersionInfo |
 $DLLVersionInfomation.FileName
 $DLLVersionInfomation.ProductBuildPart
 $DLLVersionInfomation.ProductPrivatePart
+
+# Report for NESSUS comments field
+$env:COMPUTERNAME
+$DLLVersionInfomation.FileName
+$DetailsProductVersion = "{0}.{1}.{2}.{3}" -f $DLLVersionInfomation.ProductMajorPart,$DLLVersionInfomation.ProductMinorPart,$DLLVersionInfomation.ProductBuildPart,$DLLVersionInfomation.ProductPrivatePart
+$DetailsProductVersion
