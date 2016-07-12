@@ -16,3 +16,49 @@ $env:COMPUTERNAME
 $DLLVersionInfomation.FileName
 $DetailsProductVersion = "{0}.{1}.{2}.{3}" -f $DLLVersionInfomation.ProductMajorPart,$DLLVersionInfomation.ProductMinorPart,$DLLVersionInfomation.ProductBuildPart,$DLLVersionInfomation.ProductPrivatePart
 $DetailsProductVersion
+
+#[Modified, 7/12/2016 8:48 AM, Grant Harrington]
+### Gathers version of multiple DLLs located in C:\Windows\System32
+$DLLQuery = 'structuredquery','ws2_32'
+
+#region Get-Item for all items in DLLQuery and add to Array
+$DLLItem_Array = @()
+
+Foreach ($DLL in $DLLQuery) {
+$DLLPath = "C:\Windows\System32\{0}.dll" -f $DLL
+$DLLItem = get-item $DLLPath | select *
+$DLLItem_Array += $DLLItem
+}
+#endregion
+
+#region Gather the IP address (IPv4)
+$IPAddress = Get-CimInstance Win32_NetworkAdapterConfiguration | select *
+$IP = $IPAddress.ipaddress | where {$_ -like "*.*"}
+#endregion
+
+
+
+$DLLCustomObj_Array = @()
+
+$DLLItem_Array | 
+
+ForEach-Object {
+
+$Date = get-date
+
+$DLLCustomObjProperties = [ORDERED]@{
+    'Computer Name' = $env:COMPUTERNAME
+    'System Time' = $Date
+    'IP Address' = $IP
+    'FullName' = ($_.Fullname)
+    'CreationTime' = ($_.CreationTime)
+    'FileVersion' = ("{0}.{1}.{2}.{3}" -f $DLLItem.VersionInfo.ProductMajorPart,
+                                    $DLLItem.VersionInfo.ProductMinorPart,
+                                    $DLLItem.VersionInfo.ProductBuildPart,
+                                    $DLLItem.VersionInfo.ProductPrivatePart)
+    }
+
+$DLLCustomObj = New-Object -TypeName PSCustomObject -Property $DLLCustomObjProperties
+$DLLCustomObj_Array += $DLLCustomObj
+}
+$DLLCustomObj_Array | fl
