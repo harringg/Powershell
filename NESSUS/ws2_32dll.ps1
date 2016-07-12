@@ -19,7 +19,10 @@ $DetailsProductVersion
 
 #[Modified, 7/12/2016 8:48 AM, Grant Harrington]
 ### Gathers version of multiple DLLs located in C:\Windows\System32
-$DLLQuery = 'structuredquery','ws2_32'
+cls
+#[Modified, 7/12/2016 9:51 AM, Grant Harrington]
+### Gathers version of multiple DLLs located in C:\Windows\System32
+$DLLQuery = 'oleaut32','ntdll','seclogon','mshtml','msxml3','ole32','gdi32','rpcrt4','gpprefcl','wdigest'
 
 #region Get-Item for all items in DLLQuery and add to Array
 $DLLItem_Array = @()
@@ -52,10 +55,10 @@ $DLLCustomObjProperties = [ORDERED]@{
     'IP Address' = $IP
     'FullName' = ($_.Fullname)
     'CreationTime' = ($_.CreationTime)
-    'FileVersion' = ("{0}.{1}.{2}.{3}" -f $DLLItem.VersionInfo.ProductMajorPart,
-                                    $DLLItem.VersionInfo.ProductMinorPart,
-                                    $DLLItem.VersionInfo.ProductBuildPart,
-                                    $DLLItem.VersionInfo.ProductPrivatePart)
+    'FileVersion' = ("{0}.{1}.{2}.{3}" -f $_.VersionInfo.ProductMajorPart,
+                                    $_.VersionInfo.ProductMinorPart,
+                                    $_.VersionInfo.ProductBuildPart,
+                                    $_.VersionInfo.ProductPrivatePart)
     }
 
 $DLLCustomObj = New-Object -TypeName PSCustomObject -Property $DLLCustomObjProperties
