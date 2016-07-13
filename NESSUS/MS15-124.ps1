@@ -1,4 +1,5 @@
 #[Modified, 7/11/2016 4:02 PM, Grant Harrington]
+
 <#
 
 ASLR hardening settings for Internet Explorer in KB3125869
@@ -26,3 +27,25 @@ $Value = '1'
 $PropertyType = 'DWORD'
 New-ItemProperty -Path $Path -Name $Name -Value $Value -PropertyType $PropertyType
 }
+
+try
+{
+ # Check to see if the HKLM Path exists
+$ErrorActionPreference = 'STOP'
+Get-Item -Path $path | select Name,@{n='Property';e={($_ | Select -ExpandProperty Property) -join ','}},ValueCount -ErrorAction Stop
+}
+catch
+{
+        $ErrorMessage = $_.Exception.Message
+        $FailedItem = $_.Exception.ItemName
+        $ErrorMessage
+        $FailedItem
+
+}
+
+finally
+{
+    Write-Host "cleaning up ..."
+}
+
+$Error[0] | fl * -Force 
