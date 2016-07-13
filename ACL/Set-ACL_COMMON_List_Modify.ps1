@@ -23,6 +23,9 @@ icacls $BaseFolder
 
 #region Set List, This Folder Only
 # This allows members of this group to "pass through" the $BaseFolder to the underlying files/folders
+# LIST (GUI)
+# Basic: Read & execute, List folder contents, Read
+# Advanced: Traverse Folder / Execute File, List Folder / Read Data, Read Attributes, Read Extended Attributes, Read Permissions
 
 $FileSystemRights = 'ReadAndExecute, Synchronize'
 $AccessControlType = 'ALLOW'
@@ -39,6 +42,10 @@ Set-Acl -Path $BaseFolder -AclObject $ACL
 
 #region Set Modify, Subfolders and Files
 # This allows users to Edit,Add,Delete all files/folders under the $BaseFolder
+# MODIFY (GUI)
+# Basic: Modify, Read & execute, List folder contents, Read, Write
+# Advanced: Traverse Folder / Execute File, List Folder / Read Data, Read Attributes, Read Extended Attributes, Create Files / Write Data, Write Attributes, Write Extended Attributes, Delete, Read Permissions
+
 $FileSystemRights = 'Modify, Synchronize'
 $AccessControlType = 'ALLOW'
 $IdentityReference = $ADUCSG_Modify
