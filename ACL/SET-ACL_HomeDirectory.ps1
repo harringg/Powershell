@@ -1,6 +1,12 @@
 #[Modified, 7/12/2016 2:56 PM, Grant Harrington]
+#[Modified, 7/14/2016 12:12 PM, Grant Harrington]
+$Date = get-date -f yyMMdd_HHmm
+$ImportCSVPath = "C:\SCRIPTS"
+$ImportCSVFile = "XDrive_ACLs-AG"
+$ImportCSV = "{0}\{1}.csv" -f $ImportCSVPath,$ImportCSVFile
+$UserNameList = Import-Csv $ImportCSV
+$OutFileFile = "{0}\Logs\{1}_{2}_Log.txt" -f $ImportCSVPath,$Date,$ImportCSVFile
 
-$UserNameList = Import-Csv "C:\SCRIPTS\XDrive_ACLs-AG.csv"
 <#
 Data is generated using: ADUCUserHomeDirectory.ps1
 In Excel, HomeDirectory = \\path\path1\path2\first.last
@@ -17,7 +23,7 @@ $startDate = get-date
 $StartScreen = Write-Host "Started processing folder $RUFolder $startdate"
 $StartScreen
 $StartLog = "Started processing folder $RUFolder $startdate"
-$StartLog | Out-File "C:\Scripts\Logs\ACL-Batch.txt" -Append
+$StartLog | Out-File $OutFileFile -Append
 icacls $RUFolder
 
 $FileSystemRights = 'FullControl'
@@ -37,6 +43,6 @@ $endScreen = Write-Host "Completed Processing $RUFolder $enddate"
 $endScreen
 $endLog = "Completed Processing $RUFolder $enddate"
 $icacls = icacls $RUFolder
-$icacls | Out-File "C:\Scripts\Logs\ACL-Batch.txt" -Append
-$endLog | Out-File "C:\Scripts\Logs\ACL-Batch.txt" -Append
+$icacls | Out-File $OutFileFile -Append
+$endLog | Out-File $OutFileFile -Append
 }
