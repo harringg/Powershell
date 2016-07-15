@@ -44,7 +44,7 @@ $TestModify
 $startDate = get-date
 $StartIcacls = icacls $BaseFolder
 $StartLogMessage = "Started processing folder $BaseFolder $startdate"
-Write-verbose $StartLog -Verbose
+Write-verbose $StartLogMessage -Verbose
 $StartIcacls
 $StartLogMessage | Out-File $OutFileFile -Append
 $StartIcacls | Out-File $OutFileFile -Append
@@ -127,3 +127,25 @@ Write-verbose $EndLogMessage -Verbose
 $EndIcacls
 $EndIcacls | Out-File $OutFileFile -Append
 $EndLogMessage | Out-File $OutFileFile -Append
+
+<#
+Clear-Variable Domain
+Clear-Variable RU
+Clear-Variable RUPrevious
+Clear-Variable Directory
+Clear-Variable BaseFolder
+Clear-Variable ADUCSG_Remove
+Clear-Variable ADUCSG_List
+Clear-Variable ADUCSG_Modify
+Clear-Variable Date
+Clear-Variable OutFilePath
+Clear-Variable OutFileFile
+Clear-Variable StartDate
+Clear-Variable StartIcacls
+Clear-Variable StartLogMessage
+Clear-Variable EndDate
+Clear-Variable EndIcacls
+Clear-Variable EndLogMessage
+Clear-Variable ACL
+Clear-Variable ACE
+#>
