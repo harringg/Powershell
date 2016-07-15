@@ -120,7 +120,7 @@ function Get-ADUC_AllFields {
 
         $email = @{
                 From = $Sender
-                To =$Recipients
+                To = $Recipients
                 Subject = $MessageSubject
                 SMTPServer = $Relay
                 Attachments = "c:\temp\$Today-SELECT_AC02_3-TEST-$StrOU.csv"
