@@ -1,8 +1,7 @@
 # [Modified, 7/18/2016 3:08 PM, Grant Harrington]
+# [Modified, 7/18/2016 4:06 PM, Grant Harrington]
 # Modifed from source: https://gallery.technet.microsoft.com/Get-GPO-informations-b02e0fdf#content
 
-#Todo
-#Built Array for ACL Objects
 Function Get-GPOInfo { 
  <# 
 .SYNOPSIS 
@@ -64,6 +63,8 @@ Function Get-GPOInfo {
     } 
  
     Process{ 
+    $GPOPermissions_Array = @()
+    $GPOInfo_Array = @()
         ForEach($GPO in (Get-GPO -Name 'RS User PA-3060 ANS DFS DRIVE LETTER Y' -Domain $DomainName )){ 
             Write-Verbose -Message "Processing $($GPO.DisplayName)..." 
             [xml]$XmlGPReport = $GPO.generatereport('xml') 
@@ -73,35 +74,52 @@ Function Get-GPOInfo {
             #GPO content 
             if($XmlGPReport.GPO.User.ExtensionData -eq $null){$UserSettingsConfigured=$false}else{$UserSettingsConfigured=$true} 
             if($XmlGPReport.GPO.Computer.ExtensionData -eq $null){$ComputerSettingsConfigured=$false}else{$ComputerSettingsConfigured=$true} 
-            #Output 
-            New-Object -TypeName PSObject -Property @{ 
-                'LinksTO'            = $XmlGPReport.GPO.LinksTo | Select-Object -ExpandProperty SOMPath 
-                'Name'               = $XmlGPReport.GPO.Name 
-                'ComputerSettings'   = $ComputerSettings 
-                'UserSettings'       = $UserSettings 
-                'UserEnabled'        = $XmlGPReport.GPO.User.Enabled 
-                'ComputerEnabled'    = $XmlGPReport.GPO.Computer.Enabled 
-                'SDDL'               = $XmlGPReport.GPO.SecurityDescriptor.SDDL.'#text' 
-                'HasComputerSettings'= $ComputerSettingsConfigured 
-                'HasUserSettings'    = $UserSettingsConfigured 
-                'CreationTime'       = $GPO.CreationTime 
-                'ModificationTime'   = $GPO.ModificationTime 
-                'GpoStatus'          = $GPO.GpoStatus 
-                'GUID'               = $GPO.Id 
-                'WMIFilter'          = $GPO.WmiFilter.name,$GPO.WmiFilter.Description 
-                'Path'               = $GPO.Path 
-                'Id'                 = $GPO.Id 
-                'ACLs'               = ($XmlGPReport.gpo.SecurityDescriptor.Permissions.TrusteePermissions |
-                    # This is creating the data for the ACLs output
-                    ForEach-Object -Process { 
-                    New-Object -TypeName PSObject -Property @{ 
-                        'User'           = $_.trustee.name.'#Text'
-                        'PermissionType' = $_.type.PermissionType
-                        'Inherited'      = $_.Inherited
-                        'Permissions'    = $_.Standard.GPOGroupedAccessEnum
-                    } #end New-Object ACLs
-                } ) -join ',' #end ForEach-Object, ACLs
-            } #end New-Object All
+            #Output
+
+
+
+ 
+                $GPOInfoProperties = [ORDERED] @{ 
+                        'LinksTO'            = ($XmlGPReport.GPO.LinksTo | Select-Object -ExpandProperty SOMPath) -join ','
+                        'Name'               = $XmlGPReport.GPO.Name 
+                        'ComputerSettings'   = $ComputerSettings 
+                        'UserSettings'       = $UserSettings 
+                        'UserEnabled'        = $XmlGPReport.GPO.User.Enabled 
+                        'ComputerEnabled'    = $XmlGPReport.GPO.Computer.Enabled 
+                        'SDDL'               = $XmlGPReport.GPO.SecurityDescriptor.SDDL.'#text' 
+                        'HasComputerSettings'= $ComputerSettingsConfigured 
+                        'HasUserSettings'    = $UserSettingsConfigured 
+                        'CreationTime'       = $GPO.CreationTime 
+                        'ModificationTime'   = $GPO.ModificationTime 
+                        'GpoStatus'          = $GPO.GpoStatus 
+                        'GUID'               = $GPO.Id 
+                        'WMIFilter'          = $GPO.WmiFilter.name,$GPO.WmiFilter.Description 
+                        'Path'               = $GPO.Path 
+                        'Id'                 = $GPO.Id 
+                        'ACLs'               = ($XmlGPReport.gpo.SecurityDescriptor.Permissions.TrusteePermissions |
+                            # This is creating the data for the ACLs output
+                            ForEach-Object -Process {
+
+
+                            $GPOPermissionsProperties = [ORDERED] @{ 
+                                'User'           = $_.trustee.name.'#Text'
+                                'PermissionType' = $_.type.PermissionType
+                                'Inherited'      = $_.Inherited
+                                'Permissions'    = $_.Standard.GPOGroupedAccessEnum
+                            } #end New-Object ACLs
+
+
+                            $GPOPermissions = New-Object -TypeName PSCustomObject -Property $GPOPermissionsProperties
+                            $GPOPermissions_Array += $GPOPermissions
+                            
+                        }) #end ForEach-Object, ACLs
+                    } #end New-Object All
+
+$GPOInfo = New-Object -TypeName PSCustomObject -Property $GPOInfoProperties
+$GPOInfo_Array += $GPOInfo
+					
+$GPOInfo_Array
+$GPOPermissions_Array | ft
         } #end ForEach GPO in Get-GPO...
     } # End Process
     End{} 
