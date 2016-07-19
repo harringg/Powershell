@@ -5,7 +5,7 @@
             "P:\IT\Shared Knowledge\Forms\AuditForms\AUDIT_AD_CHANGE.xsn"
 
             .DESCRIPTION
-            NAME: ACCONT-REVIEW
+            NAME: Audit-ADUser
             AUTHOR: Grant Harrington
             EMAIL: grant.harrington@ars.usda.gov
             LASTEDIT: 7/19/2016 12:23 PM
@@ -21,24 +21,24 @@
             https://ems-mysites.usda.gov/Person.aspx?accountname=ARSNET%5CGrant%2EHarrington
 
             #>
-	[CMDLETBINDING()]
-	param ($SearchUser)
+
+	[CmdletBinding(SupportsPaging = $true,
+				   SupportsShouldProcess = $true)]
+	[OutputType([array])]
+	param
+	(
+		[Parameter(Mandatory = $TRUE)]
+		[string]$SearchUser
+	)
 	
 	BEGIN {
 		$EAD_PA3060 = "OU=3060,OU=PA,OU=ARS,OU=Agencies,DC=usda,DC=net"
 	}
 	PROCESS {
-		#$SearchUser = Read-Host "Enter user's first or last name"
-		#$varName = 'name -like "*' + $SearchUser + '*"'
-		$varName = "name -like `"*{0}*`"" -f $SearchUser
+		$FilterName = "name -like `"*{0}*`"" -f $SearchUser
 		
-		#$varName = 'SamAccountName -like "*' + $REMUSER + '*"'
-		#$varName = "SamAccountName -like `"*{0}*`"" -f $REMUSER
-		#$varName
-		
-		#This will gather the AD User name
-		
-		$GetUser = Get-ADUser -SearchBase $EAD_PA3060 -filter $varName -Properties *
+		#This will gather the AD User name		
+		$GetUser = Get-ADUser -SearchBase $EAD_PA3060 -filter $FilterName -Properties *
 		foreach ($GU in $GetUser) {
 			
 			$ObjAccountReviewResults = [ordered]@{
@@ -91,4 +91,4 @@
 			$ObjAccountReview | clip.exe
 		} #end foreach
 	} #end PROCESS
-} #end ACCOUNT-REVEIW
+} #end Audit-ADUser
