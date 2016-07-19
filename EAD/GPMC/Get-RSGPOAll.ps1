@@ -42,8 +42,13 @@ function Get-RSGPO {
 	
 	PROCESS {
     
+    if ($RSGPOAll) {
+    Write-Verbose "`$RSGPOAll Variable has been created"
+} else {
     Write-Verbose "Gathering all GPOs in USDA.net domain and assinging to `$RSGPOAll Variable"
-	$global:RSGPOAll = get-gpo -all | select DisplayName
+	$global:RSGPOAll = get-gpo -all | select DisplayName,Id}
+
+
 	} #end PROCESS
 	
 	END {
