@@ -43,7 +43,7 @@ function Get-RSGPO {
 	PROCESS {
     
     Write-Verbose "Gathering all GPOs in USDA.net domain and assinging to `$RSGPOAll Variable"
-	$global:RSGPOAll = get-gpo -all | select DisplayName
+	$global:RSGPOAll = get-gpo -all | select DisplayName,Id
 	} #end PROCESS
 	
 	END {
