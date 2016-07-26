@@ -21,7 +21,7 @@ function Get-PA3060Computers {
             AUTHOR: Grant Harrington
             EMAIL: grant.harrington@ars.usda.gov
             CREATED: 6/16/2016 1:45 PM
-			LASTEDIT: 6/16/2016 1:45 PM
+			LASTEDIT: 7/25/2016 8:32 PM
             KEYWORDS:
 	.LINK
 		EAD Scripts
@@ -31,24 +31,47 @@ function Get-PA3060Computers {
 	[OutputType([array])]
 	param
 	(
-		[Parameter(Mandatory = $FALSE)]
-		[ValidateSet('REVIEW', 'LIVE')]
-		[string]$PRODUCTION = 'REVIEW'
+		[Parameter(Mandatory = $TRUE)]
+		[ValidateSet('InitializeVariable', 'ExportXML')]
+		[string]$PRODUCTION = 'InitializeVariable'
 	)
 	
 	BEGIN {
+		
 		$EAD_PA3060 = "OU=3060,OU=PA,OU=ARS,OU=Agencies,DC=usda,DC=net"
+		
 	} #end BEGIN
 	
 	PROCESS {
-		$global:PA3060_COMPUTERS = Get-ADComputer -SearchBase $EAD_PA3060 -Filter * -Properties *
+		
+		SWITCH ($PRODUCTION) {
+			InitializeVariable {
+				IF ($PA3060_COMPUTERS) {
+					Write-Verbose '$PA3060_COMPUTERS variable is already populated.'
+				} #end IF
+				ELSE {
+					Write-Verbose 'Populating variable $PA3060_COMPUTERS...'
+					$global:PA3060_COMPUTERS = Get-ADComputer -SearchBase $EAD_PA3060 -Filter * -Properties *
+				} #end ELSE
+				
+			} #end InitializeVariable
+			ExportXML {
+				IF ($PA3060_COMPUTERS) {
+					Write-Verbose 'Exporting CliXml...'
+					$PA3060_COMPUTERS | Export-Clixml "C:\Temp\Clixml-Computers.xml"
+				} #end IF
+				ELSE {
+					Get-PA3060Computers -PRODUCTION InitializeVariable -Verbose
+				} #end ELSE
+			} #end ExportXML
+		} #end SWITCH
+		
 	} #end PROCESS
 	
 	END {
 		
 	} #end END
+	
 } #end Get-PA3060Computers
 
-
-Get-PA3060Computers
-$PA3060_COMPUTERS | Export-Clixml "C:\Temp\Clixml-Computers.xml"
+Get-PA3060Computers -PRODUCTION InitializeVariable -Verbose
