@@ -8,7 +8,7 @@
             NAME: Audit-ADUser
             AUTHOR: Grant Harrington
             EMAIL: grant.harrington@ars.usda.gov
-            LASTEDIT: 7/19/2016 12:23 PM
+            LASTEDIT: 8/2/2016 9:33 AM
             KEYWORDS: ADUC
 
             .PARAMETER Name
@@ -21,21 +21,34 @@
             https://ems-mysites.usda.gov/Person.aspx?accountname=ARSNET%5CGrant%2EHarrington
 
             #>
-
+	
 	[CmdletBinding(SupportsPaging = $true,
 				   SupportsShouldProcess = $true)]
 	[OutputType([array])]
 	param
 	(
 		[Parameter(Mandatory = $TRUE)]
-		[string]$SearchUser
+		[string]$SearchUser,
+		[Parameter(Mandatory = $TRUE)]
+		[ValidateSet('Local', 'ARS')]
+		[string]$SearchBase
 	)
 	
 	BEGIN {
-		$EAD_PA3060 = "OU=3060,OU=PA,OU=ARS,OU=Agencies,DC=usda,DC=net"
-	}
+
+		switch ($SearchBase) {
+			Local {
+				$EAD_PA3060 = 'OU=3060,OU=PA,OU=ARS,OU=Agencies,DC=usda,DC=net'
+			} #end Local
+			ARS {
+				$EAD_PA3060 = 'OU=ARS,OU=Agencies,DC=usda,DC=net'
+			} #end ARS
+		} #end Switch SearchBase
+
+	} #end BEGIN
+
 	PROCESS {
-		$FilterName = "name -like `"*{0}*`"" -f $SearchUser
+		$FilterName = "sAMAccountName -like `"*{0}*`"" -f $SearchUser
 		
 		#This will gather the AD User name		
 		$GetUser = Get-ADUser -SearchBase $EAD_PA3060 -filter $FilterName -Properties *
@@ -55,6 +68,7 @@
 				"REE Web Page" = $GU.wWWHomePage
 				"Login Name (UserPrincipalName)" = $GU.UserPrincipalName
 				"SamAccountName" = $GU.SamAccountName
+				"LogonWorkstations" = $GU.LogonWorkstations
 				"Password Never Expires Setting: " = $GU.PasswordNeverExpires
 				"Home Drive Letter" = $GU.HomeDrive
 				"Home Directory" = $GU.HomeDirectory
