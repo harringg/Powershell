@@ -1,10 +1,15 @@
 ﻿function Remove-ARSAppxPackage {
 	<#
 	.SYNOPSIS
-	
+	    This script is to be used to remove WIN 10 AppxPackages from the base isntall
 	.DESCRIPTION
-	
-	.PARAMETER REPORTTYPE
+	    Intended to be run on WIN 10 with Powershell v5.0 or greater
+        AppxPackages (PackageFullName) are imported from a static text file (this allows the list to be dynamic, without need to update the script)
+	.PARAMETER ImportFile
+        This is the filename that contains the PackageFullName
+        PackageFullName
+        king.com.CandyCrushSodaSaga_1.68.500.0_x86__kgqvnymyfvs32
+        Microsoft.Advertising.Xaml_8wekyb3d8bbwe
 
 	.PARAMETER PRODUCTION
 		This is used to review your results before actually running the script
