@@ -27,7 +27,7 @@
             AUTHOR: Grant Harrington
             EMAIL: grant.harrington@ars.usda.gov
             CREATED: 2/11/2016 7:48 PM
-			LASTEDIT: 8/20/2016 9:00 PM
+			LASTEDIT: 8/23/2016 2:12 PM
             KEYWORDS:
 	.LINK
 		EAD Scripts
@@ -41,7 +41,7 @@
 		[Parameter(Mandatory = $True)]
 		[string]$PCName,
 		[Parameter(Mandatory = $TRUE)]
-		[ValidateSet('SmartCardExempt', 'RSASecurID')]
+		[ValidateSet('SmartCardExempt', 'RSASecurID','USGCBSleep','USGCBLocalFirewall','USGCBDrobo')]
 		[string]$ADGroup,
 		[Parameter(Mandatory = $TRUE)]
 		[ValidateSet('Add', 'Remove')]
@@ -57,6 +57,15 @@
 			RSASecurID {
 				$SecurityGroup = 'ARSL-RSA-SecurID-Computers-PA3060'
 			} #end RSASecurID
+			USGCBSleep {
+				$SecurityGroup = 'ARS-PA-3060-(5)USGCBExempt-Sleep'
+			} #end USGCBSleep
+			USGCBLocalFirewall {
+				$SecurityGroup = 'ARS-PA-3060-(6)USGCBExempt-Local_Rules'
+			} #end USGCBLocalFirewall
+			USGCBDrobo {
+				$SecurityGroup = 'ARS-PA-3060-(4)USGCBExempt-Drobo'
+			} #end USGCBDrobo
 		} #end Switch-ADGroup
 		
 	} #end BEGIN
