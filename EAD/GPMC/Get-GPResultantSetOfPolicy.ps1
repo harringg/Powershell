@@ -1,0 +1,1 @@
+﻿Get-GPResultantSetOfPolicy -Computer localhost -User grant.harrington -ReportType Html -Path c:\temp\gpresult.html
