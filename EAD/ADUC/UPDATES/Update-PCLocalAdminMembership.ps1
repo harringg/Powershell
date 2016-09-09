@@ -14,10 +14,10 @@
         Verb-Noun -PRODUCTION LIVE
 	
 	.EXAMPLE
-				PS C:\> Export-GPOReports -ReportType HTML -PRODUCTION REVIEW
-	            PS C:\> Export-GPOReports -ReportType HTML -PRODUCTION LIVE
+				PS C:\> UPDATE-PCLocalAdminMembership -PRODUCTION REVIEW -COMPUTERNAME ARSNDFAR4002009 -UserName SV.RS.MigAcct -GROUPS Administrators
+	            PS C:\> UPDATE-PCLocalAdminMembership -PRODUCTION REMOVE -COMPUTERNAME ARSNDFAR4002009 -UserName SV.RS.MigAcct -GROUPS Administrators
 	.NOTES
-		    NAME: Export-GPOReports
+		    NAME: UPDATE-PCLocalAdminMembership
             AUTHOR: Grant Harrington
             EMAIL: grant.harrington@ars.usda.gov
             CREATED: 9/9/2016 2:30 PM
@@ -66,7 +66,7 @@
 					$members = $Group.psbase.invoke("Members") |
 					foreach {
                                                   # Use "Name" or "ADsPath" as desired
-						$_.GetType().InvokeMember("Name", 'GetProperty', $null, $_, $null)
+						$_.GetType().InvokeMember("ADsPath", 'GetProperty', $null, $_, $null)
 					} #end $Members | FOREACH
 					
 					FOREACH ($user in $members) {
@@ -85,10 +85,12 @@
 			} # end ADD
 			REMOVE {
 				$AdminGroup = [ADSI]"WinNT://$ComputerName/$GroupName,group"
-				#$User = [ADSI]"WinNT://$DomainName/$UserName,user"
-                $User = [ADSI]"WinNT://S-1-5-21-2670568672-578679464-3423941738-4665,user"
-                
-				$AdminGroup.Remove($User.Path)
+				$User = [ADSI]"WinNT://$DomainName/$UserName,user"
+                #$User = [ADSI]"WinNT://S-1-5-21-2670568672-578679464-3423941738-4665,user"
+                #$User = [ADSI]"WinNT://S-1-5-21-2670568672-578679464-3423941738-4665"
+                #$User = 'S-1-5-21-2670568672-578679464-3423941738-4665'
+                $AdminGroup.Remove($User.Path)
+                #$AdminGroup.Remove($User)
 			} #end REMOVE
 		} #end Switch-Production
 		
