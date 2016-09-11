@@ -21,7 +21,7 @@
             AUTHOR: Grant Harrington
             EMAIL: grant.harrington@ars.usda.gov
             CREATED: 9/9/2016 2:30 PM
-			LASTEDIT: 9/9/2016 2:30 PM
+			LASTEDIT: 9/10/2016 11:23 PM
             KEYWORDS:
 	.LINK
 		EAD Scripts
@@ -38,9 +38,10 @@
 		[string]$COMPUTERNAME,
 		[Parameter(Mandatory = $TRUE)]
 		[string]$UserName,
-		[ValidateSet('Administrators', 'Remote Desktop Users')]
+		[ValidateSet('Administrators','Remote Desktop Users')]
 		[Parameter(Mandatory = $TRUE)]
 		[string]$GROUPS
+
 	)
 	
 	BEGIN {
@@ -69,12 +70,25 @@
 						$_.GetType().InvokeMember("ADsPath", 'GetProperty', $null, $_, $null)
 					} #end $Members | FOREACH
 					
-					FOREACH ($user in $members) {
+                FOREACH ($user in $members) {
 						$objUser = [ADSI]("WinNT://$strComputer/$user")
-						[string]$output = $strComputer + "," + $user + "," + $objUser.SchemaClassName + "," + $ObjUser.Description
+                        $SchemaClassName = $objUser.SchemaClassName
+                        $Description = $ObjUser.Description
+                        
+                        if (($User -match [regex]"^*USDA*?") -eq $true) {
+	                    [string]$output = "{0},{1},{2},{3}" -f $strComputer,$user,$SchemaClassName,$Description
+    					#[string]$output = $strComputer + "," + $user + "," + $objUser.SchemaClassName + "," + $ObjUser.Description
 						write-host $output
 						#$output |out-file -append .\L_out.txt
 						Remove-Variable objUser
+                        } elseif (($User -match [regex]"^*ARSNDFAR*?") -eq $true) {
+                        Write-host "Inside ElseIf Loop"
+	                    [string]$output = "{0},{1},{2},{3}" -f $strComputer,$user,$SchemaClassName,$Description
+    					#[string]$output = $strComputer + "," + $user + "," + $objUser.SchemaClassName + "," + $ObjUser.Description
+						write-host $output
+						#$output |out-file -append .\L_out.txt
+						Remove-Variable objUser
+                        } #end elseif
 					} # end FOREACH ($user in $members)
 				} #end FOREACH ($PC in $COMPUTERNAME)
 			} #end REVIEW
