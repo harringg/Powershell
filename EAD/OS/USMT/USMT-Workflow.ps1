@@ -102,6 +102,10 @@ foreach ($ProfileLIST in $ProfileLISTPathAll) {
 $ProfileLISTUSDA_Array | fl
 $ProfileLISTAllFARGO_Array | fl
 $ProfileLISTAllOthers_Array | fl
+
+$ProfileLISTUSDA_Array | select USDAProfileImagePath
+$ProfileLISTAllFARGO_Array | select FARGOProfileImagePath
+$ProfileLISTAllOthers_Array | select OTHERProfileImagePath
 #Restores the network path recorded in Push-Location
 Pop-Location
 
@@ -197,7 +201,12 @@ foreach ($ProfileGUID in $ProfileGUIDPathAll) {
 }
 $ProfileGUIDUSDA_Array | fl
 $ProfileGUIDFARGO_Array | fl
-$ProfileGUIDAllOthers_Array
+$ProfileGUIDAllOthers_Array | fl
+
+$ProfileGUIDUSDA_Array | select USDAPSPath
+$ProfileGUIDFARGO_Array | select FargoPSPath
+$ProfileGUIDAllOthers_Array | select OthersPSPath
+
 Pop-Location #Restores the network path recorded in Push-Location
 
 # This will remove all FARGO Domain GUID values that were collected
@@ -304,3 +313,24 @@ else {
 $MyPSPath = 'Microsoft.PowerShell.Core\Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileGuid\{7ffa8fa7-433f-4807-ae79-be1285b5a648}'
 $MyPSPath2 = 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileGuid\{7ffa8fa7-433f-4807-ae79-be1285b5a648}'
 Remove-Item $MyPSPath2 -Whatif
+
+#region added 169026
+$PC = 'ARSNDFAR42B2700'
+$User = 'grant.herges'
+$Root = "\\{0}\C`$" -f $PC
+$Source = 'Q:\usmt\store\USMT\USMT.MIG'
+$Destination = "\\10.170.180.2\public\Software Installers\USMT\{0}" -f $User
+New-PSDrive -Name U -PSProvider FileSystem -Root $Root
+New-Item 
+Copy-Item $Source -Destination $Destination
+
+$dest = "\\10.170.180.2\public\Software Installers\USMT"
+Push-Location
+cd $dest
+Pop-Location
+
+Start-BitsTransfer
+
+Import-Module BitsTransfer
+Start-BitsTransfer -Source $Source -Destination $Destination -Description "Backup" -DisplayName "Backup"
+#endregion
