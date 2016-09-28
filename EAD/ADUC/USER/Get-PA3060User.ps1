@@ -61,7 +61,7 @@ function Get-PA3060Users {
 					$PA3060_USERS | Export-Clixml "C:\Temp\Clixml-Users.xml"
 				} #end IF
 				ELSE {
-					Get-PA3060Computers -PRODUCTION InitializeVariable -Verbose
+					Get-PA3060_USERS -PRODUCTION InitializeVariable -Verbose
 				} #end ELSE
 			} #end ExportXML
 		} #end SWITCH
@@ -74,4 +74,4 @@ function Get-PA3060Users {
 
 } #end Get-PA3060Users
 
-Get-PA3060Users -PRODUCTION InitializeVariable -Verbose
+measure-command {Get-PA3060Users -PRODUCTION InitializeVariable -Verbose}
