@@ -8,7 +8,7 @@
             NAME: Audit-ADUser
             AUTHOR: Grant Harrington
             EMAIL: grant.harrington@ars.usda.gov
-            LASTEDIT: 8/2/2016 9:33 AM
+            LASTEDIT: 8/26/2016 11:06 AM
             KEYWORDS: ADUC
 
             .PARAMETER Name
@@ -30,14 +30,14 @@
 		[Parameter(Mandatory = $TRUE)]
 		[string]$SearchUser,
 		[Parameter(Mandatory = $TRUE)]
-		[ValidateSet('Local', 'ARS')]
+		[ValidateSet('PA3060', 'ARS')]
 		[string]$SearchBase
 	)
 	
 	BEGIN {
 
 		switch ($SearchBase) {
-			Local {
+			PA3060 {
 				$EAD_PA3060 = 'OU=3060,OU=PA,OU=ARS,OU=Agencies,DC=usda,DC=net'
 			} #end Local
 			ARS {
@@ -45,16 +45,21 @@
 			} #end ARS
 		} #end Switch SearchBase
 
+        $ScriptName = 'Audit-ADUser'
+        $LastEdit = '8/26/2016 11:06 AM'
+
 	} #end BEGIN
 
 	PROCESS {
 		$FilterName = "sAMAccountName -like `"*{0}*`"" -f $SearchUser
 		
 		#This will gather the AD User name		
-		$GetUser = Get-ADUser -SearchBase $EAD_PA3060 -filter $FilterName -Properties *
+		$global:GetUser = Get-ADUser -SearchBase $EAD_PA3060 -filter $FilterName -Properties *
 		foreach ($GU in $GetUser) {
 			
 			$ObjAccountReviewResults = [ordered]@{
+				"Script Name" = $ScriptName
+				"Script Last Edit Date" = $LastEdit
 				"Data Collected" = get-date
 				"Full Name" = $GU.CN
 				"First Name" = $GU.GivenName
