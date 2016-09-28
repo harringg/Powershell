@@ -1,121 +1,245 @@
-﻿#region List Profile Directories that exist in C:\Users (In Explorer)
-cls
-# Set Profile Path Variable
-$ProfilePath = 'C:\Users'
-
-# Change Path to ProfilePath
-Set-Location $ProfilePath
-
-# Get All Profiles Installed on this PC
-$UserProfileDirectory = Get-Childitem -path "$ProfilePath\*" | select FullName, BaseName
-
-# Report All Profiles Installed on this PC
-$UserProfileDirectory
-#endregion
-
-#region List Registry ProfileList values that exist
-
-# Records the current network path
-Push-Location
-
-# Set Registry ProfileList Path Variable
-$ProfileListPath = 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList'
-
-# Set Path to $ProfileListPath value
-Set-Location $ProfileListPath
-
-# Gather ProfileListPathAll value, Lists all values in ProfileList Registry entry
-#$ProfileListPathAll = Get-ChildItem -Path $ProfileListPath | % { Get-ItemProperty $_.pspath } | select ProfileImagePath, PSChildName
-$ProfileListPathAll = Get-ChildItem -Path $ProfileListPath | % { Get-ItemProperty $_.pspath }
-
-#$ProfileListPathAll | sort ProfileImagePath
-#$ProfileListPathAll | sort PSChildName
-
-$global:ProfileLISTUSDA_Array = @()
-$global:ProfileLISTFARGO_Array = @()
-$global:ProfileLISTAllOthers_Array = @()
-
-$FargoSIDPattern = 'S-1-5-21-2670568672'
-$USDASIDPattern = 'S-1-5-21-2443529608'
-
-foreach ($ProfileLIST in $ProfileLISTPathAll) {
+﻿function Get-UsersProfileDirectories {
+	<#
+	.SYNOPSIS
 	
-	if ($ProfileLIST -match "$USDASIDPattern*") {
-		#region $global:ProfileLISTUSDA_Array
-		ForEach ($LIST in $ProfileLIST) {
-			
-			$ProfileLISTUSDAProperties = [ORDERED]@{
-				'USDAProfileImagePath' = ($LIST.ProfileImagePath) -join ','
-				'USDAGuid' = ($LIST.Guid) -join ','
-				'USDAPSPath' = ($LIST.PSPath) -join ','
-				'USDAPSParentPath' = ($LIST.PSParentPath) -join ','
-				'USDAPSChildName' = ($LIST.PSChildName) -join ','
-			} #end $ProfileLISTUSDAProperties
-			
-			$ProfileLISTUSDA = New-Object -TypeName PSCustomObject -Property $ProfileLISTUSDAProperties
-			$global:ProfileLISTUSDA_Array += $ProfileLISTUSDA
-		} #end ForEach ($LIST in $ProfileLIST) $ProfileLISTUSDA_Array
-		#endregion  $global:ProfileLISTUSDA_Array	
-	} #end if
-	elseif ($ProfileLIST -match "$FargoSIDPattern*") {
-		#region $global:ProfileLISTFARGO_Array	
-		
-		ForEach ($LIST in $ProfileLIST) {
-			
-			$ProfileLISTFARGOProperties = [ORDERED]@{
-				'FARGOProfileImagePath' = ($LIST.ProfileImagePath) -join ','
-				'FARGOGuid' = ($LIST.Guid) -join ','
-				'FARGOPSPath' = ($LIST.PSPath) -join ','
-				'FARGOPSParentPath' = ($LIST.PSParentPath) -join ','
-				'FARGOPSChildName' = ($LIST.PSChildName) -join ','
-			} #end $ProfileLISTUSDAProperties
-			
-			$ProfileLISTFARGO = New-Object -TypeName PSCustomObject -Property $ProfileLISTFARGOProperties
-			$global:ProfileLISTFARGO_Array += $ProfileLISTFARGO
-			
-		} #end ForEach ($LIST in $ProfileLIST) $ProfileLISTFARGO_Array
-		#endregion  $global:ProfileLISTFARGO_Array
-	} #end ForEach ($LIST in $ProfileLIST) ProfileLISTFARGO
+	.DESCRIPTION
 	
-	elseif ($ProfileLIST -notmatch "$FargoSIDPattern*|$USDASIDPattern*") {
-		#region $global:ProfileLISTAllOthers_Array
-		#"This is neither Fargo nor USDA LIST: $ProfileLIST"
-		#$ProfileLIST | select *
-		ForEach ($LIST in $ProfileLIST) {
-			
-			$ProfileLISTAllOthersProperties = [ORDERED]@{
-				'OTHERProfileImagePath' = ($LIST.ProfileImagePath) -join ','
-				'OTHERGuid' = ($LIST.Guid) -join ','
-				'OTHERPSPath' = ($LIST.PSPath) -join ','
-				'OTHERPSParentPath' = ($LIST.PSParentPath) -join ','
-				'OTHERPSChildName' = ($LIST.PSChildName) -join ','
-			} #end $ProfileLISTAllOthersProperties
-			
-			$ProfileLISTAllOthers = New-Object -TypeName PSCustomObject -Property $ProfileLISTAllOthersProperties
-			$global:ProfileLISTAllOthers_Array += $ProfileLISTAllOthers
-		} #end $global:ProfileLISTAllOthers_Array foreach
-		#endregion  $global:ProfileLISTAllOthers_Array
+	.PARAMETER REPORTTYPE
+
+	.PARAMETER PRODUCTION
+		This is used to review your results before actually running the script
+        REVIEW run the script to review results before running live in production enviroment
+        Verb-Noun -PRODUCTION REVIEW
+        LIVE Will run the script live in production enviroment
+        Verb-Noun -PRODUCTION LIVE
+	
+	.EXAMPLE
+				PS C:\> Get-UsersProfileDirectories -PRODUCTION LIVE
+	
+	.NOTES
+		    NAME: Get-UsersProfileDirectories
+            AUTHOR: Grant Harrington
+            EMAIL: grant.harrington@ars.usda.gov
+            CREATED: 9/27/2016 7:42 PM
+			LASTEDIT: 9/27/2016 7:42 PM
+            KEYWORDS:
+	.LINK
+		EAD Scripts
+#>
+	[CmdletBinding(SupportsPaging = $true,
+				   SupportsShouldProcess = $true)]
+	[OutputType([array])]
+	param
+	(
+		[Parameter(Mandatory = $TRUE)]
+		[ValidateSet('REVIEW', 'LIVE')]
+		[string]$PRODUCTION = 'REVIEW'
+	)
+	
+	BEGIN {
+		$Date = Get-Date
+        $FunctionName = 'Get-UsersProfileDirectories'
+		# Set Profile Path Variable
+		$ProfilePath = 'C:\Users'
 		
-	} #end elseif ($ProfileLIST -notmatch "$FargoSIDPattern*|$USDASIDPattern*")
-}
+	} #end BEGIN
+	
+	PROCESS {
+		
+		
+		Switch ($PRODUCTION) {
+			LIVE {
+				#region List Profile Directories that exist in C:\Users (In Explorer)
+				cls				
+				# Change Path to ProfilePath
+				Set-Location $ProfilePath
+				
+				# Get All Profiles Installed on this PC
+				$UserProfileDirectory = Get-Childitem -path "$ProfilePath\*" | select FullName, BaseName
+				
+				# Report All Profiles Installed on this PC
+                Write-Host "Function name: $ScriptName"
+				Write-Host "Function ran: $date"
 
-$ProfileLISTUSDA_Array | fl
-$ProfileLISTAllFARGO_Array | fl
-$ProfileLISTAllOthers_Array | fl
+				$UserProfileDirectory
+				#endregion
+			} # end LIVE
+			REVIEW {
+			} #end REVIEW
+		} #end Switch-Production
+		
+	} #end PROCESS
+	
+	END {
+		
+	} #end END
+} #end Get-UsersProfileDirectories
 
-$ProfileLISTUSDA_Array | select USDAProfileImagePath
-$ProfileLISTAllFARGO_Array | select FARGOProfileImagePath
-$ProfileLISTAllOthers_Array | select OTHERProfileImagePath
-#Restores the network path recorded in Push-Location
-Pop-Location
+function Get-ProfileListRegistryValue {
+	<#
+	.SYNOPSIS
+	
+	.DESCRIPTION
+	
+	.PARAMETER REPORTTYPE
 
-# This will remove all FARGO Domain GUID values that were collected
-foreach ($PSPath in $ProfileLISTAllFARGO_Array.FargoPSPath) {
-	#Remove-Item $PSPath -WhatIf
-}
-
-#endregion List Registry ProfileList values that exist
-
+	.PARAMETER PRODUCTION
+		This is used to review your results before actually running the script
+        REVIEW run the script to review results before running live in production enviroment
+        Verb-Noun -PRODUCTION REVIEW
+        LIVE Will run the script live in production enviroment
+        Verb-Noun -PRODUCTION LIVE
+	
+	.EXAMPLE
+				PS C:\> Get-ProfileListRegistryValue -PRODUCTION LIVE
+	
+	.NOTES
+		    NAME: Get-ProfileListRegistryValue
+            AUTHOR: Grant Harrington
+            EMAIL: grant.harrington@ars.usda.gov
+            CREATED: 9/27/2016 7:42 PM
+			LASTEDIT: 9/27/2016 7:42 PM
+            KEYWORDS:
+	.LINK
+		EAD Scripts
+#>
+	[CmdletBinding(SupportsPaging = $true,
+				   SupportsShouldProcess = $true)]
+	[OutputType([array])]
+	param
+	(
+		[Parameter(Mandatory = $TRUE)]
+		[ValidateSet('DELETEProfileList', 'REVIEWProfileList')]
+		[string]$PRODUCTION = 'REVIEW'
+	)
+	
+	BEGIN {
+		$Date = Get-Date -format yyMMdd
+		# Set Profile Path Variable
+		$ProfilePath = 'C:\Users'
+		
+	} #end BEGIN
+	
+	PROCESS {
+		
+		
+		Switch ($PRODUCTION) {
+			DELETEProfileList {
+				
+				# This will remove all FARGO Domain GUID values that were collected
+				foreach ($PSPath in $ProfileLISTAllFARGO_Array.FargoPSPath) {
+					#Remove-Item $PSPath -WhatIf
+				}
+				
+			} # end DELETEProfileList
+			REVIEWProfileList {
+				#region List Registry ProfileList values that exist
+				
+				# Records the current network path
+				Push-Location
+				
+				# Set Registry ProfileList Path Variable
+				$ProfileListPath = 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList'
+				
+				# Set Path to $ProfileListPath value
+				Set-Location $ProfileListPath
+				
+				# Gather ProfileListPathAll value, Lists all values in ProfileList Registry entry
+				#$ProfileListPathAll = Get-ChildItem -Path $ProfileListPath | % { Get-ItemProperty $_.pspath } | select ProfileImagePath, PSChildName
+				$ProfileListPathAll = Get-ChildItem -Path $ProfileListPath | % { Get-ItemProperty $_.pspath }
+				
+				#$ProfileListPathAll | sort ProfileImagePath
+				#$ProfileListPathAll | sort PSChildName
+				
+				$global:ProfileLISTUSDA_Array = @()
+				$global:ProfileLISTFARGO_Array = @()
+				$global:ProfileLISTAllOthers_Array = @()
+				
+				$FargoSIDPattern = 'S-1-5-21-2670568672'
+				$USDASIDPattern = 'S-1-5-21-2443529608'
+				
+				foreach ($ProfileLIST in $ProfileLISTPathAll) {
+					
+					if ($ProfileLIST -match "$USDASIDPattern*") {
+						#region $global:ProfileLISTUSDA_Array
+						ForEach ($LIST in $ProfileLIST) {
+							
+							$ProfileLISTUSDAProperties = [ORDERED]@{
+								'USDAProfileImagePath' = ($LIST.ProfileImagePath) -join ','
+								'USDAGuid' = ($LIST.Guid) -join ','
+								'USDAPSPath' = ($LIST.PSPath) -join ','
+								'USDAPSParentPath' = ($LIST.PSParentPath) -join ','
+								'USDAPSChildName' = ($LIST.PSChildName) -join ','
+							} #end $ProfileLISTUSDAProperties
+							
+							$ProfileLISTUSDA = New-Object -TypeName PSCustomObject -Property $ProfileLISTUSDAProperties
+							$global:ProfileLISTUSDA_Array += $ProfileLISTUSDA
+						} #end ForEach ($LIST in $ProfileLIST) $ProfileLISTUSDA_Array
+						#endregion  $global:ProfileLISTUSDA_Array	
+					} #end if
+					elseif ($ProfileLIST -match "$FargoSIDPattern*") {
+						#region $global:ProfileLISTFARGO_Array	
+						
+						ForEach ($LIST in $ProfileLIST) {
+							
+							$ProfileLISTFARGOProperties = [ORDERED]@{
+								'FARGOProfileImagePath' = ($LIST.ProfileImagePath) -join ','
+								'FARGOGuid' = ($LIST.Guid) -join ','
+								'FARGOPSPath' = ($LIST.PSPath) -join ','
+								'FARGOPSParentPath' = ($LIST.PSParentPath) -join ','
+								'FARGOPSChildName' = ($LIST.PSChildName) -join ','
+							} #end $ProfileLISTUSDAProperties
+							
+							$ProfileLISTFARGO = New-Object -TypeName PSCustomObject -Property $ProfileLISTFARGOProperties
+							$global:ProfileLISTFARGO_Array += $ProfileLISTFARGO
+							
+						} #end ForEach ($LIST in $ProfileLIST) $ProfileLISTFARGO_Array
+						#endregion  $global:ProfileLISTFARGO_Array
+					} #end ForEach ($LIST in $ProfileLIST) ProfileLISTFARGO
+					
+					elseif ($ProfileLIST -notmatch "$FargoSIDPattern*|$USDASIDPattern*") {
+						#region $global:ProfileLISTAllOthers_Array
+						#"This is neither Fargo nor USDA LIST: $ProfileLIST"
+						#$ProfileLIST | select *
+						ForEach ($LIST in $ProfileLIST) {
+							
+							$ProfileLISTAllOthersProperties = [ORDERED]@{
+								'OTHERProfileImagePath' = ($LIST.ProfileImagePath) -join ','
+								'OTHERGuid' = ($LIST.Guid) -join ','
+								'OTHERPSPath' = ($LIST.PSPath) -join ','
+								'OTHERPSParentPath' = ($LIST.PSParentPath) -join ','
+								'OTHERPSChildName' = ($LIST.PSChildName) -join ','
+							} #end $ProfileLISTAllOthersProperties
+							
+							$ProfileLISTAllOthers = New-Object -TypeName PSCustomObject -Property $ProfileLISTAllOthersProperties
+							$global:ProfileLISTAllOthers_Array += $ProfileLISTAllOthers
+						} #end $global:ProfileLISTAllOthers_Array foreach
+						#endregion  $global:ProfileLISTAllOthers_Array
+						
+					} #end elseif ($ProfileLIST -notmatch "$FargoSIDPattern*|$USDASIDPattern*")
+				}
+				
+				$ProfileLISTUSDA_Array | fl
+				$ProfileLISTAllFARGO_Array | fl
+				$ProfileLISTAllOthers_Array | fl
+				
+				$ProfileLISTUSDA_Array | select USDAProfileImagePath | fl
+				$ProfileLISTAllFARGO_Array | select FARGOProfileImagePath | fl
+				$ProfileLISTAllOthers_Array | select OTHERProfileImagePath | fl
+				#Restores the network path recorded in Push-Location
+				Pop-Location
+				
+				#endregion List Registry ProfileList values that exist
+				
+			} #end REVIEWProfileList
+		} #end Switch-Production
+		
+	} #end PROCESS
+	
+	END {
+		
+	} #end END
+} #end Get-ProfileListRegistryValue
 
 #region List Registry ProfileGUID values that exist
 
