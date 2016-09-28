@@ -57,7 +57,7 @@ function AUDIT-ADGroupMembership {
 					$ADGroup = Get-ADGroup -Identity $ADGroupName -Properties * | select DistinguishedName, CN, Description, Modified
 					$ADGroupMember = Get-ADGroupMember -Identity $ADGroupName | sort DistinguishedName | select DistinguishedName
 					
-					$AuditADGroupAll_Array = @()
+					$global:AuditADGroupAll_Array = @()
 					
 					$AuditADGroupProperties = [ORDERED]@{
 						'ADGroup_DistinguishedName' = ($ADGroup.DistinguishedName)
@@ -79,9 +79,9 @@ function AUDIT-ADGroupMembership {
 					} #end AuditADGroupProperties
 					
 					$AuditADGroupAll = New-Object -TypeName PSCustomObject -Property $AuditADGroupProperties
-					$AuditADGroupAll_Array += $AuditADGroupAll
+					$global:AuditADGroupAll_Array += $AuditADGroupAll
 					
-					$AuditADGroupAll_Array
+					#$AuditADGroupAll_Array
 				}
 			} # end ALL
 			INDIVIDUAL {
