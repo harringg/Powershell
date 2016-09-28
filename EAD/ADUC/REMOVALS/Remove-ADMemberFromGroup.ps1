@@ -6,7 +6,7 @@
 # TOOD: Convert into Advanced Function
 
 # AD SG that contains members (USER/COMPUTER) to remove in batch
-$EADGroup = 'RS.PA-usda-computer-add-complete'
+$EADGroup = 'RS.PA-usdausermigration-final'
 
 # Sets the OU to filter on, ensuring only select objects will be removed
 $EADOU = '3060'
