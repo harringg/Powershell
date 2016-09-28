@@ -21,7 +21,7 @@ function Set-UPNtoHSPDPID {
             AUTHOR: Grant Harrington
             EMAIL: grant.harrington@ars.usda.gov
             CREATED: 6/28/2015 7:57 PM
-			LASTEDIT: 6/30/2016 12:52 PM
+			LASTEDIT: 9/36/2016 12:36 PM
             KEYWORDS: ADUC
 
 	.LINK
@@ -54,6 +54,7 @@ function Set-UPNtoHSPDPID {
 			$SetADUserSamUPNParams = @{
 				'Identity' = $SetADUserIdentity;
 				'UserPrincipalName' = $SetADUserUserPrincipalName;
+                'Replace' = @{ extensionAttribute1 = 'PIV - NON-EP' }
                 
 			} #end SetADUserSamUPNParams
 			
