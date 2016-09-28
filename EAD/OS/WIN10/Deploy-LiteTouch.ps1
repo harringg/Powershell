@@ -37,16 +37,20 @@
 
         $LiteTouchPath = '\\10.170.180.2\it\MDTProduction\Scripts'
         $CSCRIPT = "{0}\LiteTouch.vbs" -f $LiteTouchPath
-		
+
 	} #end BEGIN
 	
 	PROCESS {
 		
 		foreach ($Computer in $ComputerName) {
 			try {
-				$PSSession = New-PSSession -ComputerName $Computer
-				Invoke-Command -session $PSSession -ScriptBlock { cscript $CSCRIPT }
-				
+				$PSSession = New-PSSession -ComputerName $Computer -Credential "USDA\RS.Grant.Harrington"
+#				Invoke-Command -session $PSSession -ScriptBlock { CSCRIPT '\\10.170.180.2\it\MDTProduction\Scripts\LiteTouch.vbs'  }
+Invoke-Command -session $PSSession -ScriptBlock { runas /user:USDA\RS.Grant.Harrington CSCRIPT '\\10.170.180.2\it\MDTProduction\Scripts\LiteTouch.vbs'  }
+
+# cscript vbscript.vbs
+#	Invoke-Command -session $PSSession -ScriptBlock { cscript //d }
+#				invoke-command -session $PSSession -ScriptBlock { whoami.exe  }
 				Remove-PSSession -ID $PSSession.Id
 			}
 			catch {
