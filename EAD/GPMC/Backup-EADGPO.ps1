@@ -1,5 +1,5 @@
 # Run once, then comment out
-#."C:\Users\rs.grant.harrington\Documents\POSH\EAD\GPMC\Get-RSGPOAll-FUNCTION.ps1"
+#."C:\Users\grant.harrington\Documents\GitHub\Powershell\EAD\GPMC\Get-RSGPOAll.ps1"
 
 function Backup-EADGPO {
 	<#
@@ -45,10 +45,11 @@ function Backup-EADGPO {
 		$Date = Get-Date -format yyMMdd_HHmm
 
 		#region RunFirst
-		$RSGPOQuery = $RSGPOAll | where { $_.DisplayName -like "*$GPOName*" } | select DisplayName
-		
-		# Base Directory where your exported GPOs and HTML reports will reside
-		$BaseDirectory = 'C:\Users\rs.grant.harrington\Documents\EAD\GPOBackup'
+		$RSGPOQuery = $RSGPOAll | where { $_.DisplayName -like "*$GPOName*" } | select DisplayName,ID
+
+        # Base Directory where your exported GPOs and HTML reports will reside
+		$BaseDirectory = 'C:\Temp\GPOBackups\EAD'
+        #$BaseDirectory = 'C:\Users\rs.grant.harrington\Documents\EAD\GPOBackup'
 		$FolderPath = '{0}\{1}_({2})' -f $BaseDirectory, $Date, $GPOName
 		
 		#endregion
@@ -68,9 +69,9 @@ function Backup-EADGPO {
 					# This creates the folder to store the exported GPO and HTML report
 					New-Item -Path $GPOFolderPath -ItemType Directory
 					# This backs up the GPO to the $GPOFolderPath and places the GPO name in the Comment field
-					Backup-Gpo -Name $($Name.DisplayName) -Path $GPOFolderPath -Comment "$($Name.DisplayName)"
+					Backup-Gpo -Guid $($Name.ID) -Path $GPOFolderPath -Comment "$($Name.DisplayName)"
 					# This creates an HTML report in the $GPOFolderPath
-					Get-GPOReport -Name $($Name.DisplayName) -ReportType Html -Path $GPOReportNamePath
+					Get-GPOReport -Guid $($Name.ID) -ReportType Html -Path $GPOReportNamePath
 				} #end foreach $Name in $RSComputerGPOPA3060
 				#endregion
 				
