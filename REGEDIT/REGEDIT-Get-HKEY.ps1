@@ -1,7 +1,9 @@
 ﻿#$Path = 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce'
 #$Path = 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce'
+$Path = 'HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband'
 $Path = 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP'
 $Path = 'Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters'
+$Path = 'Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList'
 
 function Test-RegistryValue {
 
@@ -116,12 +118,16 @@ Parameters                     ServiceDllUnloadOnStop   : 1
                                OtherDomains             : {}                
 
 
-Push-Location
+Push-Location #Records the current network path
 $Path = 'Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters'
 Set-Location $Path
-Pop-Location
+Pop-Location #Restores the network path recorded in Push-Location
 
 Get-Item -Path $path
+Get-ItemProperty -Path $Path
+Get-ItemPropertyValue -Path $path
+Get-ChildItem -Path $path | select @{N="SID";E={($_.Property).State}}
+Get-ChildItem -Path $path | % { Get-ItemProperty $_.pspath} | select ProfileImagePath,PSChildName
 
     Hive: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\LanmanWorkstation
 
@@ -135,3 +141,16 @@ Parameters                     ServiceDllUnloadOnStop   : 1
                                ServiceDll               : C:\WINDOWS\System32\wkssvc.dll                                                                                                                                                                                       
                                OtherDomains             : {}                                                                                                                                                                                                                   
 
+###
+#[Modified, 8/5/2016 3:11 PM, Grant Harrington]
+https://connect.microsoft.com/PowerShell/feedback/details/1609288/pin-to-taskbar-no-longer-working-in-windows-10
+
+Removing Edge / Store icons is somewhat tricky. I usually do it right after the OSD by modifying the HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband key and then restarting the explorer process:
+
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Taskband]
+"Favorites"=hex:ff
+"FavoritesChanges"=dword:00000015
+"FavoritesVersion"=dword:00000002
+"FavoritesRemovedChanges"=dword:00000001
