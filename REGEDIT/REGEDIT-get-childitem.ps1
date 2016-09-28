@@ -69,6 +69,12 @@ PS HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.htm>
 cd HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.html
 get-childitem
 
+cd 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList'
+$FargoSID = Get-ChildItem | where {$_.name -like "*2670568*"} | select *
+$FargoSID.property.profileimagepath
+I looked at HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList on PCOld and both
+S-1-5-21-24435… (USDA SID)
+S-1-5-21-26705… (Fargo SID)
 
 
     Hive: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.html
