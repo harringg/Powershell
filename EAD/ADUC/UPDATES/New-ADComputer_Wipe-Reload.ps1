@@ -1,7 +1,7 @@
 ﻿#[Modified, 7/31/2016 8:08 PM, Grant Harrington]
-          
+
 $computerInstance = new-object Microsoft.ActiveDirectory.Management.ADcomputer
-New-ADcomputer -Name "ARSNDFAR5123456" -Instance $computerInstance -Path 'OU=Computers-Portable,OU=SPB,OU=Units,OU=3060,OU=PA,OU=ARS,OU=Agencies,DC=usda,DC=net' -Description 'Test PC'
+New-ADcomputer -Name "ARSNDFAR4127072" -Instance $computerInstance -Path 'OU=Computers-Portable,OU=SPB,OU=Units,OU=3060,OU=PA,OU=ARS,OU=Agencies,DC=usda,DC=net' -Description 'Test PC'
 
 See Wipe-Reload_PA3060Computer.ps1 for variables for this script
 $SAMAccountName = $ADUCComputersWRAll_Array.sAMAccountNameIdentity
