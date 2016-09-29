@@ -14,7 +14,7 @@
             $SearchUser = users first or last name (If multiple results appear, rerun with more specifc values)
 
             .EXAMPLE
-            ACCOUNT-REVIEW -SearchUser harrington
+            Audit-ADUserOrgChart -SearchUser grant.harrington -SearchBase ARS
 
             .LINK
             https://ems-mysites.usda.gov/Person.aspx?accountname=ARSNET%5CGrant%2EHarrington
