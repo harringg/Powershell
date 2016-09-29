@@ -35,6 +35,9 @@
 	
 	BEGIN {
 
+        $ExportPath = 'C:\Temp'
+        $ExportFileName = 'OCIO_OrgChart'
+        $CSVExport = "{0}\{1}.csv" -f $ExportPath, $ExportFileName
 		switch ($SearchBase) {
 			PA3060 {
 				$EAD_PA3060 = 'OU=3060,OU=PA,OU=ARS,OU=Agencies,DC=usda,DC=net'
@@ -92,7 +95,8 @@
 			
 			$ObjAccountReview = New-Object -TypeName PSObject -Property $ObjAccountReviewResults
 			Write-Output $ObjAccountReview
-			
+            $CSVExport
+			$ObjAccountReview | export-csv $CSVExport -NoTypeInformation -Append
 			$ObjAccountReview | clip.exe
 		} #end foreach
 	} #end PROCESS
