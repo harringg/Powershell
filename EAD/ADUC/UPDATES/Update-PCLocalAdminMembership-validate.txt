@@ -1,1 +1,0 @@
-﻿'Administrators', 'Remote Desktop Users'
