@@ -8,7 +8,7 @@
             NAME: Audit-ADUser
             AUTHOR: Grant Harrington
             EMAIL: grant.harrington@ars.usda.gov
-            LASTEDIT: 8/26/2016 11:06 AM
+            LASTEDIT: 9/29/2016 11:76 AM
             KEYWORDS: ADUC
 
             .PARAMETER Name
@@ -46,7 +46,7 @@
 		} #end Switch SearchBase
 
         $ScriptName = 'Audit-ADUser'
-        $LastEdit = '8/26/2016 11:06 AM'
+        $LastEdit = '9/29/2016 11:76 AM'
 
 	} #end BEGIN
 
@@ -81,6 +81,18 @@
 				"Title" = $GU.Title
 				"Department (RU)" = $GU.Department
 				'Manager (Supervisor)' = ($GU.Manager | ForEach-Object {
+					if (($_ -match [regex]"CN=.*\\") -eq $TRUE) {
+						$DN_FIRST = $_ -creplace '(^.*\\,\s|\s-.*$)', ''
+						$DN_LAST = $_ -creplace '(CN=|\\.*$)', ''
+						$Employee = "{0} {1}" -f $DN_FIRST, $DN_LAST;
+						$Employee
+					} #end if CN=.*\\
+					elseif (($_ -match [regex]"(CN=|,OU.*$)") -eq $TRUE) {
+						$_ -replace [regex]"(CN=|,OU.*$)", ''
+					} #end elseif (CN=|,OU.*$)
+				} #end foreach-object
+				) -join ','
+				'DirectReports (Supervisees)' = ($GU.DirectReports | ForEach-Object {
 					if (($_ -match [regex]"CN=.*\\") -eq $TRUE) {
 						$DN_FIRST = $_ -creplace '(^.*\\,\s|\s-.*$)', ''
 						$DN_LAST = $_ -creplace '(CN=|\\.*$)', ''
