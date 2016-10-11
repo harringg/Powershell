@@ -16,7 +16,7 @@ FUNCTION Audit-ADObjectContact {
             NAME: Audit-ADObjectContact
             AUTHOR: Grant Harrington
             EMAIL: grant.harrington@ars.usda.gov
-            LASTEDIT: 10/10/2016 5:42 PM
+            LASTEDIT: 10/10/2016 7:28 PM
             KEYWORDS: ADUC
 
             .PARAMETER Name
@@ -39,7 +39,10 @@ FUNCTION Audit-ADObjectContact {
 		[string]$SearchUser,
 		[Parameter(Mandatory = $TRUE)]
 		[ValidateSet('PA3060', 'ARS')]
-		[string]$SearchBase
+		[string]$SearchBase,
+		[Parameter(Mandatory = $TRUE)]
+		[ValidateSet('AllUsers', 'SingleUser')]
+		[string]$Include
 	)
 	
 	BEGIN {
@@ -52,21 +55,24 @@ FUNCTION Audit-ADObjectContact {
 				$EAD_PA3060 = 'OU=ARS,OU=Agencies,DC=usda,DC=net'
 			} #end ARS
 		} #end Switch SearchBase
+
+		switch ($Include) {
+			AllUsers {
+        		$global:GetContact = get-adobject -SearchBase $EAD_PA3060 -LDAPFilter "(&(objectclass=contact))" -properties *
+			} #end AllUsers
+			SingleUser {
+				$global:GetContact = get-adobject -SearchBase $EAD_PA3060 -LDAPFilter "(&(objectclass=contact)(name=$SearchUser*))" -properties *
+			} #end SingleUser
+		} #end Switch Include
 		
 		$ScriptName = 'Audit-ADObjectContact'
-		$LastEdit = '10/10/2016 5:42 PM'
+		$LastEdit = '10/10/2016 7:28 PM'
 		
 	} #end BEGIN
 	
 	PROCESS {
-		#		$FilterName = "sAMAccountName -like `"*{0}*`"" -f $SearchUser
-		
-		#This will gather the AD User name
-		#        $global:GetContact = get-adobject -SearchBase $EAD_PA3060 -LDAPFilter "(&(objectclass=contact)(name=$SearchUser*))" -properties *
-		
-		$global:GetContact = get-adobject -SearchBase $EAD_PA3060 -LDAPFilter "(&(objectclass=contact))" -properties *
-		
-		$global:AuditADContactsAll_Array = @()
+	
+    	$global:AuditADContactsAll_Array = @()
 		
 		foreach ($GU in $GetContact) {
 			
