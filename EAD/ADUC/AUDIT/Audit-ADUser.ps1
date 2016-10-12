@@ -116,7 +116,7 @@
 				"Lincpass/RSA Status" = $GU.extensionAttribute1
 			} #end ObjAccountReviewResults
 			
-			$ObjAccountReview = New-Object -TypeName PSObject -Property $ObjAccountReviewResults
+			$Global:ObjAccountReview = New-Object -TypeName PSObject -Property $ObjAccountReviewResults
 			Write-Output $ObjAccountReview
 			
 			$ObjAccountReview | clip.exe
