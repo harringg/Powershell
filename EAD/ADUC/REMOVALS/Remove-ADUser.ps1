@@ -1,4 +1,7 @@
-﻿[Modified, 10/12/2016 5:12 PM, Grant Harrington]
+﻿#[Modified, 10/12/2016 5:12 PM, Grant Harrington]
+#Based on GUI workflow in ADManager
+#https://arsitwiki.usda.net/mediawiki/index.php/EAD_Disable_an_Account
+
 #0. Audit existing settings
 ."C:\Users\grant.harrington\Documents\GitHub\Powershell\EAD\ADUC\AUDIT\Audit-ADUser.ps1"
 $OutgoingEmployee = Read-Host "Enter First.Last"
