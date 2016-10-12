@@ -180,7 +180,9 @@ $groups = Get-ADGroup -Identity 'ARS-HQ-SmartCardExempt'
 $groups = Get-ADGroup -Identity 'ARS-RSA-SecurID-Computers'
 $groups | select Name
 $ExportPath = 'C:\Temp\ADUCGroupExport'
+$groups = 'ARS-PA-3060-all'
+$Groups = get-adgroup -Filter {sAMAccountName -like "ARS-pa-3060-*"}
 $groups | foreach {Get-ADNestedGroupMembers $_ | ft -AutoSize}
 $groups | foreach {Get-ADNestedGroupMembers $_ | Export-Csv "$ExportPath\$($_.Name).csv" -NoTypeInformation }
 
-$groups | foreach {Get-ADNestedGroupMembers $_ | Export-Csv "$ExportPath\MyADUCGroups.csv" -Append -NoTypeInformation }
+$groups | foreach {Get-ADNestedGroupMembers $_ | Export-Csv "$ExportPath\ARS-PA-3060-All.csv" -Append -NoTypeInformation }

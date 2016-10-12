@@ -7,6 +7,8 @@ $PCName = 'ARSNDFAR537BB82'
 $SecurityGroup = 'ARSL-RSA-SecurID-Computers-PA3060'
 $SecurityGroup = 'ARSL-SmartCardExempt-PA3060'
 $SecurityGroup = 'ARSLNDFAR-CER-DFS-LAB-<SY>-MODIFY'
+$SecurityGroup = 'ARS-PA-3060-AO-Staff'
+Get-ADGroupMember $SecurityGroup | select Name | sort name
 
 #Gather PC's EAD Attributes
 $PCObject = Get-ADComputer -Identity $PCName

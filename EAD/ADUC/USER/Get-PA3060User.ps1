@@ -74,4 +74,4 @@ function Get-PA3060Users {
 
 } #end Get-PA3060Users
 
-measure-command {Get-PA3060Users -PRODUCTION InitializeVariable -Verbose}
+Get-PA3060Users -PRODUCTION InitializeVariable -Verbose
