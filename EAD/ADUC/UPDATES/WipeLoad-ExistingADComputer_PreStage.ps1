@@ -87,6 +87,30 @@
 				
 			} # end LIVE
 			REVIEW {
+            $global:ADUCComputersWipeLoadAll_Array = @()
+				
+				Get-ADComputer $RemovePC -Properties $ComputerProperties |
+				ForEach-Object {
+					
+					$ADUCComputersWipeLoadProperties = [ORDERED]@{
+						'sAMAccountName' = ($_.SamAccountName)
+						'Name' = ($_.Name)
+						'whenCreated' = ($_.whenCreated)
+						'Description' = ($_.Description)
+						'DistinguishedName' = ($_.DistinguishedName)
+						'IPv4Address' = ($_.IPv4Address)
+						'MemberOf' = ($_.MemberOf | ForEach-Object { ([regex]"CN=(.*?),").match($_).Groups[1].Value }) -join ","
+						'SID' = ($_.SID)
+					}
+					
+					# New PSCustomObject using Properties from HashTable
+					$ADUCComputersWipeLoadAll = New-Object -TypeName PSCustomObject -Property $ADUCComputersWipeLoadProperties
+					
+					$global:ADUCComputersWipeLoadAll_Array += $ADUCComputersWipeLoadAll
+					
+				}
+				
+				$ADUCComputersWipeLoadAll_Array
 			} #end REVIEW
 		} #end Switch-Production
 		
