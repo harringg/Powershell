@@ -32,7 +32,7 @@ Disable-ADAccount -Identity $GetUser
 #4. Remove all groups from the user
 # Remove all memberships from the user except for "Domain Users"
 $GetUser.memberOf | Get-adgroup | where {$_.name -notmatch '^users|domain users$'} | Remove-ADGroupMember -Members $GetUser -WhatIf
-$GetUser.memberOf | Get-adgroup | where {$_.name -notmatch '^users|domain users$'} | Remove-ADGroupMember -Members $GetUser -Verbose
+$GetUser.memberOf | Get-adgroup | where {$_.name -notmatch '^users|domain users$'} | Remove-ADGroupMember -Members $GetUser -Verbose -Confirm:$false
 
 #4.a Clear Manager Field and Custom Attributes
 # Workflow: Clear ADUser's Manager field and extensionattribute1 (in-house Attribute used for Lincpass/RSA SecurID designation)
