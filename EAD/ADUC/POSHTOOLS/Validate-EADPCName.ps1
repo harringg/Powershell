@@ -81,8 +81,13 @@
 		Switch ($PRODUCTION) {
 			LIVE {
                 # Builds PC Name based on Location (FAR/EGF), Device Type (DESKTOP/LAPTOP), and last six of Device Serial Number
+                # if statement checks that value entered in SerialNumber variable is six charcters or more
+                # if True, extracts only last six charcters and converts them to all UPPER case
+                # if False, ignores conversion of True statement, re: 1,2,3,4 or 5 minus 6 results in negative number
+                if ($SerialNumber.Length -ge 6) {
                 $SerialNumber = ($SerialNumber.substring($SerialNumber.length - 6, 6)).ToUpper()
-				$global:EADName = "{0}{1}{2}" -f $Location, $Device, $SerialNumber
+                } #end if
+                $global:EADName = "{0}{1}{2}" -f $Location, $Device, $SerialNumber
                 # Checks that name equals 15 charachters ((ARSNDFAR = 8) + (4 = 1) + (123456 = 6) = 15)
 				if ($EADName.length -eq '15') {
 					Write-Host "This PC, $EADName, is properly named to meet EAD Naming Standards" -ForegroundColor White -BackgroundColor Green
@@ -98,7 +103,7 @@
                         } #end if ($EADCheck -like "*DC=USDA*")
                     
 				} else {
-                    Write-Host "This PC does not meet EAD Naming Standards, it is $($EADName.length) characters and requires 15" -ForegroundColor White -BackgroundColor DarkRed
+                    Write-Host "This PC, $EADName, does not meet EAD Naming Standards, it is $($EADName.length) characters and requires 15" -ForegroundColor White -BackgroundColor DarkRed
                     BREAK
                 } #end if ($EADName.length -eq '15')
 			} # end LIVE
