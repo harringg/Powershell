@@ -28,7 +28,7 @@
 		AUTHOR: Grant Harrington
 		EMAIL: grant.harrington@ars.usda.gov
 		CREATED: 2/11/2016 7:48 PM
-		LASTEDIT: 2/11/2016 7:48 PM
+		LASTEDIT: 9/29/2016 2:52 PM
 		KEYWORDS:
 	
 	.LINK
@@ -81,6 +81,7 @@
 		Switch ($PRODUCTION) {
 			LIVE {
                 # Builds PC Name based on Location (FAR/EGF), Device Type (DESKTOP/LAPTOP), and last six of Device Serial Number
+                $SerialNumber = ($SerialNumber.substring($SerialNumber.length - 6, 6)).ToUpper()
 				$global:EADName = "{0}{1}{2}" -f $Location, $Device, $SerialNumber
                 # Checks that name equals 15 charachters ((ARSNDFAR = 8) + (4 = 1) + (123456 = 6) = 15)
 				if ($EADName.length -eq '15') {
@@ -97,7 +98,7 @@
                         } #end if ($EADCheck -like "*DC=USDA*")
                     
 				} else {
-                    Write-Host "This PC does not meet EAD Naming Standards, it is $($EADName.length) charachters and requires 15" -ForegroundColor White -BackgroundColor DarkRed
+                    Write-Host "This PC does not meet EAD Naming Standards, it is $($EADName.length) characters and requires 15" -ForegroundColor White -BackgroundColor DarkRed
                     BREAK
                 } #end if ($EADName.length -eq '15')
 			} # end LIVE
