@@ -53,6 +53,7 @@
 		$LogonName = "{0}@usda.net" -f $sAMAccountName #General: Logon Name
 		$LogonNamePre2000 = "USDA\{0}" -f $sAMAccountName #General: Logon Name Pre-Windows 2000
 		$FullName = "{0}, {1} - ARS" -f $Surname, $GivenName #General: Full name
+        #displayName - <sn>+, +<givenName>+ - ARS
 		$DisplayName = $FullName #General: Display name
 		$Description = 'Some Description' #General: Description
 		$BLDG = 'BRL'
@@ -70,6 +71,7 @@
 		$proxyAddressesSMTPARS = "SMTP:{0}@ARS.USDA.GOV" -f $sAMAccountName
 		$proxyAddressessmtpMGD = "smtp:{0}-ARS@MGD.USDA.GOV" -f $sAMAccountName
 		$targetAddressSMTPMGD = "SMTP:{0}-ARS@MGD.USDA.GOV" -f $sAMAccountName
+        #mailNickname - <sn>+,+<givenName>+- ARS  (Same as cn, but no spaces)
 		$mailNickName = "{0}-ARS" -f $sAMAccountName
 		$EmailAddress = "{0}@ARS.USDA.GOV" -f $sAMAccountName
 		$AmerilertPrimaryGroup = 'ND, Fargo' #Amerilert Primary Group
@@ -118,11 +120,17 @@
 		$SetADUserparams = @{
 			
 			#GUI Tab: Exchange
+            #proxyAddresses - SMTP:<samAccountName@ARS.USDA.GOV, smtp:<samAccountName-ARS@MGD.USDA.GOV
 			proxyaddresses = $proxyAddressesSMTPARS, $proxyAddressessmtpMGD;
-			targetAddress = $targetAddressSMTPMGD;
-			mailNickname = $mailNickName;
-			extensionAttribute3 = 'ARS';
+            #targetAddress – SMTP:<samAccountName>-ARS@MGD.USDA.GOV			
+            targetAddress = $targetAddressSMTPMGD;
+            #mailNickname - <sn>+,+<givenName>+- ARS  (Same as cn, but no spaces)		
+        	mailNickname = $mailNickName;
+            #extensionAttribute3 - ARS
+            extensionAttribute3 = 'ARS';
+            #extensionAttribute12 - MBX=50GB\;TYPE=EP2D\;PA=1;
 			extensionAttribute12 = 'MBX=50GB;TYPE=EP2D;PA=1';
+            #extentionAttribute13 – 3
 			extensionAttribute13 = '3';
 			o = $AmerilertPrimaryGroup
 		} #end SetADUserparams		
@@ -170,7 +178,7 @@ targetAddress – SMTP:<samAccountName>-ARS@MGD.USDA.GOV
 proxyAddresses -            SMTP:<samAccountName@ARS.USDA.GOV
 smtp:<samAccountName-ARS@MGD.USDA.GOV
 mailNickname - <sn>+,+<givenName>+- ARS  (Same as cn, but no spaces)
-displayName - <sn>+, +<givenName>+ - ARS
+#displayName - <sn>+, +<givenName>+ - ARS
 extensionAttribute3 - ARS
 extensionAttribute12 - MBX=50GB\;TYPE=EP2D\;PA=1;
 extentionAttribute13 – 3
