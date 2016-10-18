@@ -32,22 +32,16 @@
 	BEGIN {
 		
 		Switch ($RU) {
-			ANS  { $Department = "Animal Metabolism Agricultural Chemicals"; $OUPath = 'ANS'; $GRP = 'Animals', 'G_ANS_ALL' }
-			CER  { $Department = "Cereal Crops Research"; $OUPath = 'CER'; $GRP = 'CER', 'G_CER_ALL' }
-			OCD  { $Department = "Office of Center Director"; $OUPath = 'OCD'; $GRP = 'OCD', 'G_OCD_ALL' }
-			IGB  { $Department = "Insect Genetics and Biochemistry Research"; $OUPath = 'IGB'; $GRP = 'Insects', 'G_IGB_ALL' }
-			IT   { $Department = "IT" }
-			LSS  { $Department = "LSS" }
-			SPB  { $Department = "Sunflower and Plant Biology Research"; $OUPath = 'SPB'; $GRP = 'Sunflowers', 'G_SPB_ALL' }
-			SUG  { $Department = "Sugarbeet and Potato Research"; $OUPath = 'SUG'; $GRP = 'Potatoes', 'G_SUG_ALL' }
-			PUB  { $Department = "Public" }
-			SEC  { $Department = "Secretaries" }
-			SHO  { $Department = "Shop" }
-			USERS { $Department = "USERS" }
+			ANS  { $Department = "Animal Metabolism Agricultural Chemicals"; $OUPath = 'ANS'; $GRP = 'Animals'}
+			CER  { $Department = "Cereal Crops Research"; $OUPath = 'CER'; $GRP = 'Cereals'}
+			IGB  { $Department = "Insect Genetics and Biochemistry Research"; $OUPath = 'IGB'; $GRP = 'Insects'}
+			OCD  { $Department = "Office of Center Director"; $OUPath = 'OCD'; $GRP = 'OCD'}
+			SPB  { $Department = "Sunflower and Plant Biology Research"; $OUPath = 'SPB'; $GRP = 'SUNFLOWER-PLANT-BIOLOGY'}
+			SUG  { $Department = "Sugarbeet and Potato Research"; $OUPath = 'SUG'; $GRP = 'Potatoes'}
 		} #end $RU Switch
 		
 		$GivenName = "Homer" #General: First name
-		$Initials = "J" #General: Initials
+		$Initials = "E" #General: Initials
 		$Surname = "Simpson" #General: Last name
 		$Global:sAMAccountName = "{0}.{1}" -f $GivenName, $Surname
 		$LogonName = "{0}@usda.net" -f $sAMAccountName #General: Logon Name
@@ -55,17 +49,17 @@
 		$FullName = "{0}, {1} - ARS" -f $Surname, $GivenName #General: Full name
         #displayName - <sn>+, +<givenName>+ - ARS
 		$DisplayName = $FullName #General: Display name
-		$Description = 'Some Description' #General: Description
-		$BLDG = 'BRL'
-		$ROOM = '155'
+		$Description = '' #General: Description
+		$BLDG = 'NCSL'
+		$ROOM = '140'
 		$Office = "{0} {1}" -f $BLDG, $ROOM #General: Office
-		$TelephoneNumber = '701-555-5555' #General: Telephone number
+		$TelephoneNumber = '701-239-5555' #General: Telephone number
 		$Email = "{0}@ARS.USDA.GOV" -f $sAMAccountName #General: E-mail
 		$Container = "OU=Users,OU={0},OU=Units,OU=3060,OU=PA,OU=ARS,OU=Agencies,DC=usda,DC=net" -f $OUPath #General: Select Container
-
-		$Manager = "grant.harrington" #sAMAccountName of first-line supervisor
+        $Company = 'Agricultural Research Service'
+		$Manager = "first.last" #sAMAccountName of first-line supervisor
 		$NASDrive = "10.170.180.2"
-		$Title = 'Some Title' #This the REE spelling of the title
+		$Title = '' #This the REE spelling of the title
 		
 		#region Set-ADUser -Add array
 		$proxyAddressesSMTPARS = "SMTP:{0}@ARS.USDA.GOV" -f $sAMAccountName
@@ -88,7 +82,7 @@
 			'GivenName' = $GivenName;
 			'Initials' = $Initials;
 			'Surname' = $Surname;
-			'Name' = "$GivenName $Surname";
+			'Name' = $DisplayName;
 			'Description' = $Description;
 			'DisplayName' = "{0}, {1} - ARS" -f $Surname, $GivenName;
 			'Office' = "{0} {1}" -f $BLDG, $ROOM;
@@ -106,9 +100,10 @@
 			'HomeDirectory' = "\\{0}\USERS\{1}" -f $NASDrive, $sAMAccountName;
 			
 			#GUI Tab: ORGANIZATION
-			'Title' = $Title;
-			'Department' = $Department;
-			'Manager' = $Manager;
+			'Title' = $Title; #Job Title
+			'Department' = $Department; #Department
+			'Company' = $Company; #Company
+            'Manager' = $Manager; #Manager
 			
 			#Account Settings
 			'ChangePasswordAtLogon' = $TRUE;
@@ -142,6 +137,11 @@
 			LIVE {
 				New-ADUser @NewADUserParams
 				Set-ADUser -Identity $sAMAccountName -Add $SetADUserparams
+                #Step 02 - Add User to Location specific SecurityGroup
+                $NetworkResourcesGroup = "ARSGNDFAR-{0}-GROUP-ALL" -f $OUPath
+                $EmailDistributionList = "ARS-PA-3060-{0}" -f $GRP
+                $SamAccountName | Add-ADPrincipalGroupMembership -MemberOf $NetworkResourcesGroup
+                $SamAccountName | Add-ADPrincipalGroupMembership -MemberOf $EmailDistributionList
 			} #end LIVE
 			REVIEW {
 				Write-Output $ReviewNewADUserObj
