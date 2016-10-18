@@ -127,7 +127,8 @@
 			extensionAttribute12 = 'MBX=50GB;TYPE=EP2D;PA=1';
             #extentionAttribute13 – 3
 			extensionAttribute13 = '3';
-			o = $AmerilertPrimaryGroup
+			o = $AmerilertPrimaryGroup;
+            'Replace' = @{ extensionAttribute1 = 'RSA SecurID' }
 		} #end SetADUserparams		
 		
 		$ReviewNewADUserObj = New-Object –TypeName PSObject –Prop $NewADUserparams
