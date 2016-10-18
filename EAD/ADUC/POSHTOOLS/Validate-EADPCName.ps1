@@ -24,7 +24,7 @@
 		System.Array
 	
 	.NOTES
-		NAME: Export-GPOReports
+		NAME: Validate-EADPCName
 		AUTHOR: Grant Harrington
 		EMAIL: grant.harrington@ars.usda.gov
 		CREATED: 2/11/2016 7:48 PM
