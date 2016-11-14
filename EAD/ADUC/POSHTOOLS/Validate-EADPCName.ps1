@@ -40,16 +40,15 @@
 	param
 	(
 		[Parameter(Mandatory = $TRUE)]
-		[ValidateSet('REVIEW', 'LIVE')]
-		[string]$PRODUCTION = 'REVIEW',
-		[Parameter(Mandatory = $TRUE)]
 		[ValidateSet('FAR', 'EGF')]
 		[string]$DeviceLocation = 'FAR',
 		[Parameter(Mandatory = $TRUE)]
 		[ValidateSet('DESKTOP', 'LAPTOP')]
 		[string]$DeviceType,
 		[Parameter(Mandatory = $TRUE)]
-		[string]$SerialNumber
+		[string]$SerialNumber,
+		[Parameter(Mandatory = $TRUE)]
+		[String][ValidateSet('REVIEW', 'LIVE')]$PRODUCTION = 'REVIEW'
 	)
 	
 	BEGIN {
