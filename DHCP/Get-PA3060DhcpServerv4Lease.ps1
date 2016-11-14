@@ -39,6 +39,11 @@
 	BEGIN {
 		$Date = Get-Date -format yyMMdd
         $ImportedDHCP = Import-Csv 'C:\Users\grant.harrington\Documents\GitHub\Powershell\DHCP\PA3060DHCP.csv'
+        
+        # CSV Format
+        # DHCPServer,BRLScope,NCSLScope
+        # ARSNDFAR3xxx,xx.xxx.x.x,xx.xxx.x.x
+
 	} #end BEGIN
 	
 	PROCESS {
