@@ -22,7 +22,7 @@ function Reset-EADUserPassword {
             AUTHOR: Grant Harrington
             EMAIL: grant.harrington@ars.usda.gov
             CREATED: 10/18/2016 11:12 AM
-			LASTEDIT: 10/18/2016 11:12 AM
+			LASTEDIT: 11/22/2016 4:01 PM
             KEYWORDS:
 	.LINK
 		EAD Scripts
@@ -32,17 +32,21 @@ function Reset-EADUserPassword {
 	[OutputType([array])]
 	param
 	(
+
+		[Parameter(Mandatory = $TRUE)]
+		[string]$SearchUser,
 		[Parameter(Mandatory = $TRUE)]
 		[ValidateSet('REVIEW', 'LIVE')]
-		[string]$PRODUCTION = 'REVIEW',
-		[Parameter(Mandatory = $TRUE)]
-		[string]$SearchUser
+		[string]$PRODUCTION
 	)
 	
 	BEGIN {
 		$Date = Get-Date -format yyMMdd
         $ImportedPW = Import-Csv 'C:\Users\grant.harrington\Documents\GitHub\Powershell\EAD\ADUC\USER\DefaultPassword.csv'
-		$DefaultPassword = ConvertTo-SecureString -string $ImportedPW.DefaultPassword -AsPlainText -force
+		# DefaultPassword.csv
+        # DefaultPassword
+        # <YourChosenDefaultPassword>
+        $DefaultPassword = ConvertTo-SecureString -string $ImportedPW.DefaultPassword -AsPlainText -force
 		$UserAccount = Get-ADUser $SearchUser -Properties Description,Enabled,PasswordLastSet
 	} #end BEGIN
 	
