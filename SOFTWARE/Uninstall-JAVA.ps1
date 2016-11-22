@@ -6,12 +6,16 @@
 ## Use the SCCM WMI class SMS_InstalledSoftware to see if the software is registered there
 $InstalledProducts = Get-WmiObject -Namespace 'root\cimv2\sms' -Class SMS_InstalledSoftware -ComputerName localhost
 ## To review the installed products (optional)
-#$InstalledProducts | Sort ProductName | select ProductName
+$InstalledProducts | Sort ProductName | select ProductName,ProductVersion
+
+## To look at all the available fields you can filter on
+$InstalledProducts | select * -First 1
 
 ## Partial name of software title you are looking for
-$SoftwareSearch = "activ"
-$Java = $InstalledProducts | where { $_.ARPDisplayName -imatch $SoftwareSearch } | Select ARPDisplayName,LocalPackage,ProductVersion,Publisher,UninstallString,SoftwareCode
-$Java
+$SoftwareSearch = "pulse"
+$SoftwareResults = $InstalledProducts | where { $_.ARPDisplayName -imatch $SoftwareSearch } | Select ARPDisplayName,LocalPackage,ProductVersion,Publisher,UninstallString,SoftwareCode
+$Java = $InstalledProducts | Select ARPDisplayName,LocalPackage,ProductVersion,Publisher,UninstallString,SoftwareCode
+$SoftwareResults
 
 # Product name = ARPDisplayName
 # Location of cached MSI = LocalPackage
