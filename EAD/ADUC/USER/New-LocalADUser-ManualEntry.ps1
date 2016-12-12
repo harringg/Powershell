@@ -1,4 +1,8 @@
-﻿function New-LocalADUser {
+﻿#TODO
+# If Federal, add to Federal list Done 161212
+# If BLDG = NCSL, add to NCSL list Done 161212
+
+function New-LocalADUser {
 <#
             .SYNOPSIS 
                 Creates a new AD user, enables the account and set the default password.
@@ -21,17 +25,19 @@
 	[CMDLETBINDING(SupportsPaging = $true,
 				   SupportsShouldProcess = $true)]
 	param (
+
 		[Parameter(Mandatory = $TRUE)]
 		[ValidateSet('REVIEW', 'LIVE')]
-		[string]$PRODUCTION = 'REVIEW',
-		[Parameter(Mandatory = $TRUE)]
-		[ValidateSet('ANS', 'CER', 'IGB', 'OCD', 'SPB', 'SUG')]
-		[string]$RU = 'ANS'
+		[string]$PRODUCTION = 'REVIEW'
 	)
 	
 	BEGIN {
-		
-		Switch ($RU) {
+		$NewEmployee = Import-Csv 'C:\Users\grant.harrington\Documents\GitHub\Powershell\EAD\ADUC\USER\NewEmployee_SingleEntry.csv'
+        # NewEmployee_SingleEntry.csv format
+        # GivenName,Initials,SurName,Telephone,BLDG,ROOM,RU,Title,Manager,IsFederal
+        # First,M,Last,701-239-5555,BRL,154,OCD,MyTitle,My.Manager,N
+
+		Switch ($NewEmployee.RU) {
 			ANS  { $Department = "Animal Metabolism Agricultural Chemicals"; $OUPath = 'ANS'; $GRP = 'Animals'}
 			CER  { $Department = "Cereal Crops Research"; $OUPath = 'CER'; $GRP = 'Cereals'}
 			IGB  { $Department = "Insect Genetics and Biochemistry Research"; $OUPath = 'IGB'; $GRP = 'Insects'}
@@ -40,26 +46,26 @@
 			SUG  { $Department = "Sugarbeet and Potato Research"; $OUPath = 'SUG'; $GRP = 'Potatoes'}
 		} #end $RU Switch
 		
-		$GivenName = "Homer" #General: First name
-		$Initials = "E" #General: Initials
-		$Surname = "Simpson" #General: Last name
+		$GivenName = (Get-Culture).TextInfo.ToTitleCase($NewEmployee.GivenName.ToLower()) #General: First name
+		$Initials = $NewEmployee.Initials.ToUpper() #General: Initials
+		$Surname = (Get-Culture).TextInfo.ToTitleCase($NewEmployee.SurName.ToLower()) #General: Last name
 		$Global:sAMAccountName = "{0}.{1}" -f $GivenName, $Surname
 		$LogonName = "{0}@usda.net" -f $sAMAccountName #General: Logon Name
 		$LogonNamePre2000 = "USDA\{0}" -f $sAMAccountName #General: Logon Name Pre-Windows 2000
 		$FullName = "{0}, {1} - ARS" -f $Surname, $GivenName #General: Full name
         #displayName - <sn>+, +<givenName>+ - ARS
 		$DisplayName = $FullName #General: Display name
-		$Description = '' #General: Description
-		$BLDG = 'NCSL'
-		$ROOM = '140'
+		$Description = $NewEmployee.Title #General: Description
+		$BLDG = $NewEmployee.BLDG
+		$ROOM = $NewEmployee.ROOM
 		$Office = "{0} {1}" -f $BLDG, $ROOM #General: Office
-		$TelephoneNumber = '701-239-5555' #General: Telephone number
+		$TelephoneNumber = $NewEmployee.Telephone #General: Telephone number
 		$Email = "{0}@ARS.USDA.GOV" -f $sAMAccountName #General: E-mail
 		$Container = "OU=Users,OU={0},OU=Units,OU=3060,OU=PA,OU=ARS,OU=Agencies,DC=usda,DC=net" -f $OUPath #General: Select Container
         $Company = 'Agricultural Research Service'
-		$Manager = "first.last" #sAMAccountName of first-line supervisor
+		$Manager = $NewEmployee.Manager #sAMAccountName of first-line supervisor
 		$NASDrive = "10.170.180.2"
-		$Title = '' #This the REE spelling of the title
+		$Title = $NewEmployee.Title #This the REE spelling of the title
 		
 		#region Set-ADUser -Add array
 		$proxyAddressesSMTPARS = "SMTP:{0}@ARS.USDA.GOV" -f $sAMAccountName
@@ -71,7 +77,12 @@
 		$AmerilertPrimaryGroup = 'ND, Fargo' #Amerilert Primary Group
 		#endregion Set-ADUser -Add array
 		
-		$DefaultPassword = ConvertTo-SecureString -string "Rrv@rc200712" -AsPlainText -force
+        $NetworkResourcesGroup = "ARSGNDFAR-{0}-GROUP-ALL" -f $OUPath
+        $EmailDistributionListRU = "ARS-PA-3060-{0}" -f $GRP
+        $EmailDistributionListBLDG = "ARS-PA-3060-{0}" -f $BLDG
+        
+        $ImportedPW = Import-Csv 'C:\Users\grant.harrington\Documents\GitHub\Powershell\EAD\ADUC\USER\DefaultPassword.csv'
+		$DefaultPassword = ConvertTo-SecureString -string $ImportedPW.DefaultPassword -AsPlainText -force
 	} #end BEGIN
 	
 	PROCESS {
@@ -128,7 +139,6 @@
             #extentionAttribute13 – 3
 			extensionAttribute13 = '3';
 			o = $AmerilertPrimaryGroup;
-            'Replace' = @{ extensionAttribute1 = 'RSA SecurID' }
 		} #end SetADUserparams		
 		
 		$ReviewNewADUserObj = New-Object –TypeName PSObject –Prop $NewADUserparams
@@ -137,16 +147,31 @@
 		Switch ($PRODUCTION) {
 			LIVE {
 				New-ADUser @NewADUserParams
-				Set-ADUser -Identity $sAMAccountName -Add $SetADUserparams
+				Set-ADUser -Identity $sAMAccountName -Add $SetADUserparams -Replace @{ extensionAttribute1 = 'RSA SecurID' }
                 #Step 02 - Add User to Location specific SecurityGroup
-                $NetworkResourcesGroup = "ARSGNDFAR-{0}-GROUP-ALL" -f $OUPath
-                $EmailDistributionList = "ARS-PA-3060-{0}" -f $GRP
+
                 $SamAccountName | Add-ADPrincipalGroupMembership -MemberOf $NetworkResourcesGroup
-                $SamAccountName | Add-ADPrincipalGroupMembership -MemberOf $EmailDistributionList
+                $SamAccountName | Add-ADPrincipalGroupMembership -MemberOf $EmailDistributionListRU
+                $SamAccountName | Add-ADPrincipalGroupMembership -MemberOf $EmailDistributionListBLDG
+                if ($NewEmployee.IsFederal -eq 'Y') {
+                $SamAccountName | Add-ADPrincipalGroupMembership -MemberOf 'ARS-PA-3060-FEDERAL'
+                } else {
+                $SamAccountName | Add-ADPrincipalGroupMembership -MemberOf 'ARS-PA-3060-ALL'
+                }
+
 			} #end LIVE
 			REVIEW {
 				Write-Output $ReviewNewADUserObj
 				write-output $ReviewSetADUserObj
+                Write-Output "Security Group: $NetworkResourcesGroup"
+                Write-Output "Email Distribution Group: $EmailDistributionListRU"
+                Write-Output "Email Distribution Group: $EmailDistributionListBLDG"
+                                if ($NewEmployee.IsFederal -eq 'Y') {
+                Write-Output "Email Distribution Group: ARS-PA-3060-FEDERAL"
+                } else {
+                Write-Output "Email Distribution Group: ARS-PA-3060-ALL"
+                }
+                
 			} #end REVIEW
 		} #end Switch-Production
 		
@@ -158,6 +183,11 @@
 	} #end END
 	
 } #end New-LocalADUser
+
+$OpenCSV = Read-Host "Do you need to update the Employee input worksheet?"
+if ($OpenCSV -eq 'Y') {
+ii 'C:\Users\grant.harrington\Documents\GitHub\Powershell\EAD\ADUC\USER\NewEmployee_SingleEntry.csv'
+}
 
 <#
 mail                                 : Willie.Wonka@ARS.USDA.GOV
